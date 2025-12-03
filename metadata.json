@@ -1,0 +1,5 @@
+{
+  "name": "BioNet: SARS-CoV-2 3D Knowledge Graph",
+  "description": "An interactive 3D visualization of the SARS-CoV-2 Multi-Intent Knowledge Graph, enriched with real-time AI context and literature discovery using Google Gemini.",
+  "requestFramePermissions": []
+}
