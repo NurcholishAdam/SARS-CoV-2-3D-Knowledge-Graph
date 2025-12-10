@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [hypothesisResult, setHypothesisResult] = useState<HypothesisResult | null>(null);
   const [analyzingHypothesis, setAnalyzingHypothesis] = useState(false);
   const [dynamicGraphData, setDynamicGraphData] = useState<GraphData>(INITIAL_GRAPH_DATA);
+  const [highlightedNodeIds, setHighlightedNodeIds] = useState<Set<string>>(new Set());
 
   // Handle Window Resize for Graph
   useEffect(() => {
@@ -68,11 +69,13 @@ const App: React.FC = () => {
         // Reset
         setHypothesisResult(null);
         setDynamicGraphData(INITIAL_GRAPH_DATA);
+        setHighlightedNodeIds(new Set());
         return;
     }
 
     setAnalyzingHypothesis(true);
     setHypothesisResult(null);
+    setHighlightedNodeIds(new Set());
     
     // Reset graph to initial before adding new hypothesis
     setDynamicGraphData(INITIAL_GRAPH_DATA);
@@ -112,12 +115,15 @@ const App: React.FC = () => {
                 }))
             ];
 
-            // Merge with initial data
-            // IMPORTANT: Create new array references to trigger graph update
+            // Update Graph Data
             setDynamicGraphData({
                 nodes: [...INITIAL_GRAPH_DATA.nodes, ...newNodes],
                 links: [...INITIAL_GRAPH_DATA.links, ...newLinks]
             });
+
+            // Set Highlights
+            const highlights = new Set([queryNodeId, hypothesisNodeId, ...result.relevantNodeIds]);
+            setHighlightedNodeIds(highlights);
         }
     } catch (e) {
         console.error("Hypothesis error", e);
@@ -132,6 +138,7 @@ const App: React.FC = () => {
         // Closing mode, reset graph
         setDynamicGraphData(INITIAL_GRAPH_DATA);
         setHypothesisResult(null);
+        setHighlightedNodeIds(new Set());
     }
   };
 
@@ -148,6 +155,7 @@ const App: React.FC = () => {
             onNodeClick={handleNodeClick} 
             width={dimensions.width}
             height={dimensions.height}
+            highlightedNodeIds={highlightedNodeIds}
           />
       </div>
 
