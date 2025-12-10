@@ -3,7 +3,25 @@ export enum NodeType {
   HUMAN_PROTEIN = 'Human Protein',
   DRUG = 'Drug/Compound',
   PHENOTYPE = 'Phenotype/Symptom',
-  PATHWAY = 'Biological Pathway'
+  PATHWAY = 'Biological Pathway',
+  // Enriched Context Types
+  VARIANT = 'Variant of Concern',
+  VACCINE = 'Vaccine/Therapeutic',
+  SURVEILLANCE = 'Surveillance/Genomic',
+  DATASET = 'Dataset/Resource',
+  // KG Specific Types
+  LITERATURE = 'Literature/Publication',
+  GO_TERM = 'Gene Ontology (Process)',
+  // Interactive Types
+  QUERY = 'User Evidence',
+  HYPOTHESIS = 'AI Hypothesis'
+}
+
+export interface NodeMetadata {
+  doi?: string;
+  authors?: string;
+  year?: string;
+  journal?: string;
 }
 
 export interface GraphNode {
@@ -13,6 +31,7 @@ export interface GraphNode {
   description: string;
   val?: number; // For visualization size
   color?: string;
+  metadata?: NodeMetadata;
 }
 
 export interface GraphLink {
@@ -30,6 +49,12 @@ export interface EnrichmentData {
   summary: string;
   sources: { title: string; uri: string }[];
   relatedTopics: string[];
+}
+
+export interface HypothesisResult {
+  hypothesis: string;
+  synthesis: string;
+  relevantNodeIds: string[];
 }
 
 export interface AppState {

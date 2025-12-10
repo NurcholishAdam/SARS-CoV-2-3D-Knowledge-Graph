@@ -1,5 +1,5 @@
 {
-  "name": "bionet:-sars-cov-2-3d-knowledge-graph",
+  "name": "bionet:-sars-cov-2-multi-intent-kg",
   "private": true,
   "version": "0.0.0",
   "type": "module",
