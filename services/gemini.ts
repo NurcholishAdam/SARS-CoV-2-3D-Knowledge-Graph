@@ -33,7 +33,7 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
   let domainInstruction = "";
   switch(domain) {
       case GraphDomain.SARS_COV_2:
-        domainInstruction = "Quantum LIMIT Graph Mode: Handle multi-intent queries like 'structural vs non-structural trade-offs'. Meta-Cognitive Task: Explicitly reflect on evidence gaps. Highlight RD curve trade-offs between immune evasion and functional fitness in synthesis. Explore Hybrid Classical-Quantum ML models for variant transmissibility scoring.";
+        domainInstruction = "Graph Nuances: Consider Socioeconomic factors (HealthcareAccess), Comorbidities (Diabetes), Coinfections (Influenza), and Environmental factors (AirQuality) alongside Viral biology. Analyze the 'Rate-Distortion' trade-off between speed of immune response and tissue damage.";
         break;
       case GraphDomain.AMR: 
         domainInstruction = "Focus on transmission pathways, gene mechanisms, and treatment alternatives. Reflect on gaps in surveillance data."; 
@@ -50,7 +50,8 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
 
   try {
     const prompt = `
-      You are an advanced Meta-Cognitive Engine for the domain: ${domain}.
+      You are an advanced Meta-Cognitive Engine utilizing a 5-STAGE QUANTUM CORRELATION FRAMEWORK.
+      Domain: ${domain}
       
       User Evidence/Query: "${query}"
       
@@ -60,15 +61,15 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
       Specific Domain Instructions: ${domainInstruction}
 
       Task:
-      1. Use Google Search to verify the latest scientific data related to the query.
-      2. Analyze the query for MULTIPLE INTENTS.
-      3. Perform a "Quantum-Enhanced Meta-Cognition":
-         - Break down reasoning steps.
-         - Critique assumptions.
-         - GENERATE A "Hybrid Classical-Quantum Confidence Score" (0-100) representing the reliability of the prediction if it were run on a hybrid QML model.
-      4. Identify relevant nodes.
-      5. Formulate a scientific hypothesis.
-      6. Synthesize the findings into a CLEAR, READABLE summary. Use Markdown formatting (bullet points, bold key terms) to make it easy to digest.
+      1. Use Google Search to verify the latest scientific data.
+      2. Apply the 5-Stage Framework to the analysis:
+         - **Stage 1: Superposition (Data Ingestion)**: Map all potential variables and conflicting data points.
+         - **Stage 2: Entanglement (Correlation)**: Identify hidden multi-intent links and non-obvious dependencies (Serendipity).
+         - **Stage 3: Interference (Filter)**: Weigh conflicting evidence to reduce noise/bias.
+         - **Stage 4: Collapse (Hypothesis)**: Formulate the single most probable scientific hypothesis.
+         - **Stage 5: Decoherence (Validation)**: Cross-reference with physical/biological constraints (e.g., thermodynamic limits, clinical reality).
+      
+      3. Identify "Serendipity Traces": 2-3 unexpected or novel connections between disparate nodes (e.g., Air Quality <-> Viral Entry).
 
       IMPORTANT: Return the response in RAW JSON format only.
       Expected JSON Structure:
@@ -77,11 +78,19 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
             "intentsDetected": ["string"],
             "steps": ["string"],
             "biasCheck": "string",
-            "confidenceScore": number
+            "confidenceScore": number,
+            "quantumStages": {
+                "superposition": "string (summary of stage 1)",
+                "entanglement": "string (summary of stage 2)",
+                "interference": "string (summary of stage 3)",
+                "collapse": "string (summary of stage 4)",
+                "decoherence": "string (summary of stage 5)"
+            }
         },
-        "quantumScore": number, // The simulated Hybrid QML Score
+        "serendipityTraces": ["string"],
+        "quantumScore": number, 
         "hypothesis": "string",
-        "synthesis": "string", // Use Markdown here (bullets, bold)
+        "synthesis": "string", // Use Markdown (bullets, bold)
         "relevantNodeIds": ["string"]
       }
     `;
@@ -92,8 +101,7 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
-        thinkingConfig: { thinkingBudget: 32768 }, // Max thinking budget
-        // No maxOutputTokens per instruction
+        thinkingConfig: { thinkingBudget: 32768 }, 
       }
     });
 
@@ -141,7 +149,6 @@ export const validateProposal = async (proposal: { label: string; description: s
             }
         `;
 
-        // Validation is a simpler task, stick to Flash to save latency/cost
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash", 
             contents: prompt,

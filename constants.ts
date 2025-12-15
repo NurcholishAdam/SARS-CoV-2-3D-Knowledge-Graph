@@ -1,3 +1,4 @@
+
 import { GraphData, NodeType, GraphDomain } from './types';
 
 // Color palette for node types
@@ -37,10 +38,14 @@ export const NODE_COLORS = {
   [NodeType.BACTERIA]: '#a3e635', // Lime Green
   [NodeType.TOOL]: '#22d3ee', // Cyan
   
-  // Climate
+  // Climate & Socio
   [NodeType.POLLUTANT]: '#71717a', // Zinc
   [NodeType.LOCATION]: '#facc15', // Yellow
   [NodeType.EVENT]: '#f43f5e', // Rose
+  [NodeType.SOCIO_ECONOMIC]: '#8b5cf6', // Violet
+  [NodeType.COMORBIDITY]: '#be123c', // Rose Dark
+  [NodeType.COINFECTION]: '#b91c1c', // Red Dark
+  [NodeType.ENVIRONMENTAL]: '#15803d', // Green Dark
   
   // Policy
   [NodeType.POLICY]: '#6366f1', // Indigo
@@ -83,8 +88,17 @@ const SARS_DATA: GraphData = {
     // --- Phenotypes ---
     { id: 'ImmuneEscape', label: 'Immune Escape', type: NodeType.PHENOTYPE, description: 'Evasion of neutralizing antibodies.', val: 20 },
     { id: 'SevereDisease', label: 'Severe Disease', type: NodeType.PHENOTYPE, description: 'Hospitalization, hypoxia, organ failure.', val: 20 },
+    { id: 'LongCovid', label: 'Long COVID', type: NodeType.PHENOTYPE, description: 'Post-acute sequelae of SARS-CoV-2 infection.', val: 22 },
 
-    // --- Functional Categories (Abstract Nodes for grouping) ---
+    // --- NEW: Comorbidities & Coinfections ---
+    { id: 'Diabetes', label: 'T2 Diabetes', type: NodeType.COMORBIDITY, description: 'Metabolic disorder increasing severity risk.', val: 20 },
+    { id: 'Influenza', label: 'Influenza A', type: NodeType.COINFECTION, description: 'Common respiratory coinfection.', val: 20 },
+    
+    // --- NEW: Socioeconomic & Environmental ---
+    { id: 'HealthcareAccess', label: 'Healthcare Access', type: NodeType.SOCIO_ECONOMIC, description: 'Availability of ICU beds and therapeutics.', val: 18 },
+    { id: 'AirQuality', label: 'PM2.5 Levels', type: NodeType.ENVIRONMENTAL, description: 'Air pollution correlating with transmission/severity.', val: 18 },
+
+    // --- Functional Categories ---
     { id: 'Func:Entry', label: 'Viral Entry', type: NodeType.FUNC_ENTRY, description: 'Mechanisms of cell invasion.', val: 15 },
     { id: 'Func:Replication', label: 'Replication Complex', type: NodeType.FUNC_REPLICATION, description: 'RNA synthesis machinery.', val: 15 },
     { id: 'Func:ImmuneMod', label: 'Immune Modulation', type: NodeType.FUNC_IMMUNE_MOD, description: 'Interference with host interferon response.', val: 15 },
@@ -120,6 +134,14 @@ const SARS_DATA: GraphData = {
 
     // Literature
     { source: 'Paper:Hoffmann', target: 'ACE2', label: 'IDENTIFIES' },
+    
+    // NEW: Comprehensive Nuance Links
+    { source: 'Diabetes', target: 'SevereDisease', label: 'EXACERBATES' },
+    { source: 'Diabetes', target: 'ACE2', label: 'UPREGULATES' },
+    { source: 'Influenza', target: 'SevereDisease', label: 'INCREASES_MORTALITY' },
+    { source: 'AirQuality', target: 'SevereDisease', label: 'CORRELATES_WITH' },
+    { source: 'HealthcareAccess', target: 'SevereDisease', label: 'MITIGATES' },
+    { source: 'LongCovid', target: 'SevereDisease', label: 'SEQUELAE_OF' },
   ]
 };
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart2, Zap, Server, ShieldCheck, X } from 'lucide-react';
+import { BarChart2, Zap, Server, ShieldCheck, X, Activity } from 'lucide-react';
 
 interface BenchmarkPanelProps {
   onClose: () => void;
@@ -50,6 +50,27 @@ const BenchmarkPanel: React.FC<BenchmarkPanelProps> = ({ onClose }) => {
               </div>
             </div>
           </div>
+        </div>
+        
+        {/* NEW: Rate-Distortion Curve Visualization */}
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <h4 className="flex items-center gap-2 text-xs font-bold text-white uppercase"><Activity size={12} className="text-pink-400"/> Rate-Distortion (R(D))</h4>
+            <span className="text-[10px] text-pink-400 font-mono">Optimized</span>
+          </div>
+          <div className="bg-slate-900/50 p-2 rounded border border-white/5 relative h-24">
+             {/* Simulated Curve */}
+             <svg className="w-full h-full text-pink-500 overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+                 <path d="M0,100 C 30,80 60,20 100,10" fill="none" stroke="currentColor" strokeWidth="2" />
+                 <circle cx="70" cy="22" r="3" fill="cyan" />
+                 <text x="75" y="22" className="text-[8px] fill-white">Operating Point</text>
+             </svg>
+             <div className="absolute bottom-1 left-1 text-[8px] text-gray-500">Distortion (Error)</div>
+             <div className="absolute top-1 left-1 text-[8px] text-gray-500">Rate (Info)</div>
+          </div>
+          <p className="text-[9px] text-gray-500 mt-1 italic">
+              Minimizing information loss while maximizing compression of multi-intent signals.
+          </p>
         </div>
 
         {/* Resource Metric */}

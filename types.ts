@@ -36,10 +36,14 @@ export enum NodeType {
   BACTERIA = 'Microbe/Strain',
   TOOL = 'Tool/Method', // CRISPR, etc.
   
-  // Climate & Env
+  // Climate & Env & Socio (New)
   POLLUTANT = 'Pollutant/Factor',
   LOCATION = 'Location/Region',
   EVENT = 'Climate Event',
+  SOCIO_ECONOMIC = 'Socioeconomic Factor',
+  COMORBIDITY = 'Comorbidity',
+  COINFECTION = 'Coinfection',
+  ENVIRONMENTAL = 'Environmental Factor',
   
   // Policy & Ethics
   POLICY = 'Policy/Framework',
@@ -54,7 +58,7 @@ export enum NodeType {
 export enum GraphDomain {
   SARS_COV_2 = 'SARS-CoV-2',
   AMR = 'Antimicrobial Resistance',
-  ONCOLOGY = 'Oncology (Precision Med)', // New Domain
+  ONCOLOGY = 'Oncology (Precision Med)', 
   NEURO = 'Neurodegenerative Disease',
   CLIMATE = 'Climate-Health',
   SYNBIO = 'Synthetic Biology',
@@ -106,7 +110,16 @@ export interface HypothesisResult {
     steps: string[];
     biasCheck: string;
     confidenceScore: number; // 0-100
+    // 5-Stage Framework Details
+    quantumStages?: {
+        superposition: string;
+        entanglement: string;
+        interference: string;
+        collapse: string;
+        decoherence: string;
+    }
   };
+  serendipityTraces?: string[]; // New: Unexpected connections
   quantumScore?: number; // Hybrid Classical-Quantum Score
   sources?: { title: string; uri: string }[];
 }
