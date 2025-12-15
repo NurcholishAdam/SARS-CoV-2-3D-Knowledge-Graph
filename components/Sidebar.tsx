@@ -1,20 +1,25 @@
-import React from 'react';
-import { X, ExternalLink, Sparkles, Database, Activity, FileText } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { X, ExternalLink, Sparkles, FileText, BookOpen, Box, Layers } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { GraphNode, EnrichmentData, NodeType } from '../types';
+import { GraphNode, EnrichmentData } from '../types';
 import { NODE_COLORS } from '../constants';
 
 interface SidebarProps {
   node: GraphNode | null;
+  relatedLiterature?: GraphNode[];
   enrichment: EnrichmentData | null;
   isLoading: boolean;
   onClose: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ node, enrichment, isLoading, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ node, relatedLiterature, enrichment, isLoading, onClose }) => {
+  const [showStructure, setShowStructure] = useState(false);
+
   if (!node) return null;
 
   const color = NODE_COLORS[node.type];
+  const hasPdb = !!node.metadata?.pdbId;
 
   return (
     <div className="absolute top-0 right-0 h-full w-full md:w-[480px] bg-slate-950/90 backdrop-blur-xl border-l border-white/10 shadow-2xl transition-transform duration-300 overflow-hidden flex flex-col z-20">
@@ -39,20 +44,71 @@ const Sidebar: React.FC<SidebarProps> = ({ node, enrichment, isLoading, onClose 
         
         <h2 className="text-2xl font-bold text-white mb-2">{node.label}</h2>
         <p className="text-sm text-gray-300 leading-relaxed">{node.description}</p>
+        
+        {/* Stage 4: Structure Integration Button */}
+        {hasPdb && (
+             <button 
+                onClick={() => setShowStructure(!showStructure)}
+                className={`mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${showStructure ? 'bg-indigo-600 text-white' : 'bg-white/10 text-indigo-300 hover:bg-white/20'}`}
+             >
+                 {showStructure ? <Layers size={14}/> : <Box size={14}/>}
+                 {showStructure ? 'Hide Molecular Model' : `View 3D Structure (${node.metadata?.pdbId})`}
+             </button>
+        )}
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
         
-        {/* Relationships Section (Conceptual Placeholder for enriched relations) */}
-        <div>
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-emerald-400 mb-3 uppercase tracking-wider">
-            <Activity size={16} /> Known Interactions
-          </h3>
-          <div className="bg-white/5 rounded-lg p-4 border border-white/5">
-             <p className="text-sm text-gray-400 italic">Select connected nodes in the 3D view to explore specific pathways.</p>
-          </div>
-        </div>
+        {/* Stage 4: Structure Viewer Embed */}
+        {showStructure && node.metadata?.pdbId && (
+            <div className="rounded-xl overflow-hidden border border-white/20 h-64 bg-black relative animate-in fade-in duration-500">
+                <iframe 
+                    src={`https://molstar.org/viewer/?pdb=${node.metadata.pdbId}&hide-controls=1`}
+                    className="w-full h-full"
+                    title="Molecular Viewer"
+                    loading="lazy"
+                />
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 text-[9px] text-gray-400 rounded pointer-events-none">
+                    Powered by Mol* & RCSB PDB
+                </div>
+            </div>
+        )}
+
+        {/* Related Literature Section */}
+        {relatedLiterature && relatedLiterature.length > 0 && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-indigo-400 mb-3 uppercase tracking-wider">
+                <BookOpen size={16} /> Related Literature
+                </h3>
+                <ul className="space-y-3">
+                {relatedLiterature.map(lit => (
+                    <li key={lit.id} className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-colors">
+                        <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm text-gray-200 font-medium">{lit.label}</span>
+                            {lit.metadata?.doi && (
+                                <a href={`https://doi.org/${lit.metadata.doi}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300 shrink-0 flex items-center gap-1">
+                                    DOI <ExternalLink size={10} />
+                                </a>
+                            )}
+                        </div>
+                         {lit.metadata && (
+                            <div className="mt-1 text-xs text-gray-500 font-mono flex flex-col gap-0.5">
+                                {lit.metadata.authors && <span>{lit.metadata.authors}</span>}
+                                <div className="flex gap-2">
+                                     {lit.metadata.journal && <span className="text-gray-400">{lit.metadata.journal}</span>}
+                                     {lit.metadata.year && <span className="text-gray-600">({lit.metadata.year})</span>}
+                                </div>
+                            </div>
+                        )}
+                        <p className="mt-2 text-xs text-gray-400 leading-relaxed border-l-2 border-indigo-500/30 pl-2">
+                            {lit.description}
+                        </p>
+                    </li>
+                ))}
+                </ul>
+            </div>
+        )}
 
         {/* AI Enrichment Section */}
         <div>

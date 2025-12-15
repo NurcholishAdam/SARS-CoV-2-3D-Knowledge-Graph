@@ -1,5 +1,5 @@
 {
-  "name": "BioNet: SARS-CoV-2 Multi-Intent KG",
+  "name": "BioNet: SARS-CoV-2 Multi-Intent Knowledge Graph",
   "description": "A 3D visualization of the SARS-CoV-2 Multi-Intent Knowledge Graph (inspired by NurcholishAdam/SARS-CoV-2-KG), enriched with real-time AI context, literature, and biological ontologies.",
   "requestFramePermissions": []
 }
