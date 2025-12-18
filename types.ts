@@ -1,12 +1,12 @@
 
 export enum NodeType {
   // Bio / Viral Components
-  VIRUS_PROTEIN = 'Viral Protein', // Generic
-  VIRAL_CAPSID = 'Capsid Protein', // N
-  VIRAL_ENVELOPE = 'Envelope Protein', // E
-  VIRAL_MATRIX = 'Matrix Protein', // M
-  VIRAL_NSP = 'Non-Structural Protein', // NSP1-16
-  VIRAL_SECRETED = 'Secreted/Accessory', // ORF8, etc.
+  VIRUS_PROTEIN = 'Viral Protein',
+  VIRAL_CAPSID = 'Capsid Protein',
+  VIRAL_ENVELOPE = 'Envelope Protein',
+  VIRAL_MATRIX = 'Matrix Protein',
+  VIRAL_NSP = 'Non-Structural Protein',
+  VIRAL_SECRETED = 'Secreted/Accessory',
   
   // Viral Functions
   FUNC_ENTRY = 'Entry Mechanism',
@@ -34,9 +34,9 @@ export enum NodeType {
   // AMR & SynBio
   GENE = 'Gene/Genetic Part',
   BACTERIA = 'Microbe/Strain',
-  TOOL = 'Tool/Method', // CRISPR, etc.
+  TOOL = 'Tool/Method',
   
-  // Climate & Env & Socio (New)
+  // Climate & Env & Socio
   POLLUTANT = 'Pollutant/Factor',
   LOCATION = 'Location/Region',
   EVENT = 'Climate Event',
@@ -71,7 +71,7 @@ export interface NodeMetadata {
   authors?: string;
   year?: string;
   journal?: string;
-  pdbId?: string; // For 3D Structure Viewer
+  pdbId?: string;
 }
 
 export interface GraphNode {
@@ -79,13 +79,13 @@ export interface GraphNode {
   label: string;
   type: NodeType;
   description: string;
-  val?: number; // For visualization size
+  val?: number;
   color?: string;
   metadata?: NodeMetadata;
 }
 
 export interface GraphLink {
-  source: string | GraphNode; // force-graph-3d mutates this to object
+  source: string | GraphNode;
   target: string | GraphNode;
   label: string;
 }
@@ -105,12 +105,17 @@ export interface HypothesisResult {
   hypothesis: string;
   synthesis: string;
   relevantNodeIds: string[];
+  universalReasoning: {
+    firstPrinciples: string[];
+    crossDomainSynergy: { domain: string; insight: string }[];
+    abstractLogicMapping: string;
+    certaintyScore: number;
+  };
   reasoning: {
-    intentsDetected: string[]; // Multi-intent support
+    intentsDetected: string[];
     steps: string[];
     biasCheck: string;
-    confidenceScore: number; // 0-100
-    // 5-Stage Framework Details
+    confidenceScore: number;
     quantumStages?: {
         superposition: string;
         entanglement: string;
@@ -119,28 +124,22 @@ export interface HypothesisResult {
         decoherence: string;
     }
   };
-  serendipityTraces?: string[]; // New: Unexpected connections
-  quantumScore?: number; // Hybrid Classical-Quantum Score
+  serendipityTraces?: string[];
   sources?: { title: string; uri: string }[];
 }
 
-export interface AppState {
-  selectedNode: GraphNode | null;
-  isSidebarOpen: boolean;
-  searchQuery: string;
-  enrichment: Record<string, EnrichmentData | null>; // Cache by node ID
-  loadingEnrichment: boolean;
-}
-
-export interface HubProposal {
-    id: string;
-    nodeLabel: string;
-    nodeType: NodeType;
-    description: string;
-    status: 'pending' | 'approved' | 'rejected';
-    aiCritique?: string;
-    sources?: { title: string; uri: string }[];
-    provenanceScore?: number; // Governance checkpoint
-}
-
 export type LayoutMode = '3d-force' | 'dag-td' | 'dag-lr' | 'radial';
+
+/**
+ * Interface representing a proposal in the Open-Source Hub.
+ */
+export interface HubProposal {
+  id: string;
+  nodeLabel: string;
+  nodeType: NodeType;
+  description: string;
+  status: 'approved' | 'rejected';
+  aiCritique: string;
+  sources?: { title: string; uri: string }[];
+  provenanceScore?: number;
+}

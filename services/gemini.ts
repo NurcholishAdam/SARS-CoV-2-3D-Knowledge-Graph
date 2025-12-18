@@ -1,17 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { EnrichmentData, GraphNode, NodeType, HypothesisResult, HubProposal, GraphDomain } from '../types';
+import { EnrichmentData, GraphNode, NodeType, HypothesisResult, GraphDomain } from '../types';
 
-const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.error("API_KEY is missing from environment variables.");
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
-};
-
-// Helper to extract sources from grounding metadata
 const extractSources = (response: any) => {
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     return chunks
@@ -24,210 +14,140 @@ const extractSources = (response: any) => {
       .filter((s: any): s is { title: string; uri: string } => s !== null);
 };
 
+/**
+ * Universal Reasoning Model: Multi-stage Analysis
+ * Stage 1: Search-based fact collection (Flash)
+ * Stage 2: Universal reasoning synthesis (Pro with Thinking)
+ */
 export const analyzeEvidence = async (query: string, availableNodes: GraphNode[], domain: GraphDomain): Promise<HypothesisResult | null> => {
-  const ai = getAiClient();
-  if (!ai) return null;
-
+  // Always initialize client directly with process.env.API_KEY
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const nodeContext = availableNodes.map(n => `${n.id} (${n.label}, ${n.type})`).join("\n");
 
-  let domainInstruction = "";
-  switch(domain) {
-      case GraphDomain.SARS_COV_2:
-        domainInstruction = "Graph Nuances: Consider Socioeconomic factors (HealthcareAccess), Comorbidities (Diabetes), Coinfections (Influenza), and Environmental factors (AirQuality) alongside Viral biology. Analyze the 'Rate-Distortion' trade-off between speed of immune response and tissue damage.";
-        break;
-      case GraphDomain.AMR: 
-        domainInstruction = "Focus on transmission pathways, gene mechanisms, and treatment alternatives. Reflect on gaps in surveillance data."; 
-        break;
-      case GraphDomain.ONCOLOGY:
-        domainInstruction = "Focus on precision medicine, clinical trial outcomes, and molecular drivers. Analyze patient cohort demographics and drug repurposing potential using hybrid quantum models.";
-        break;
-      case GraphDomain.QUANTUM_HEALTH:
-        domainInstruction = "Focus on VQE, QAOA, and NISQ hardware limitations. Evaluate hybrid classical-quantum efficacy.";
-        break;
-      default: 
-        domainInstruction = "Focus on domain-specific causal relationships and evidence gaps.";
-  }
-
   try {
+    // Stage 1: Verification via Gemini 3 Flash
+    const verificationResponse = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Search for the latest scientific evidence regarding: "${query}". Provide a concise summary of established facts and emerging uncertainties.`,
+      config: { tools: [{ googleSearch: {} }] }
+    });
+    
+    const facts = verificationResponse.text;
+    const sources = extractSources(verificationResponse);
+
+    // Stage 2: Universal Reasoning via Gemini 3 Pro
     const prompt = `
-      You are an advanced Meta-Cognitive Engine utilizing a 5-STAGE QUANTUM CORRELATION FRAMEWORK.
-      Domain: ${domain}
+      You are the Universal Scientific Reasoning Engine.
       
-      User Evidence/Query: "${query}"
+      Verified Context: ${facts}
       
-      Available Knowledge Graph Nodes:
+      User Query: "${query}"
+      Active Primary Domain: ${domain}
+      
+      Available Knowledge Graph Context:
       ${nodeContext}
 
-      Specific Domain Instructions: ${domainInstruction}
+      TASK:
+      Perform "Universal Reasoning" by identifying abstract logical patterns that transcend the primary domain.
+      1. Apply First-Principles Thinking to the biological and environmental data.
+      2. Identify "Cross-Domain Synergy": How do principles from outside ${domain} (e.g. physics, economics, climatology) influence this specific query?
+      3. Map the "Abstract Logic" of the system (e.g. feedback loops, entropy, rate-distortion limits).
+      4. Synthesize a "Multi-Intent Hypothesis".
 
-      Task:
-      1. Use Google Search to verify the latest scientific data.
-      2. Apply the 5-Stage Framework to the analysis:
-         - **Stage 1: Superposition (Data Ingestion)**: Map all potential variables and conflicting data points.
-         - **Stage 2: Entanglement (Correlation)**: Identify hidden multi-intent links and non-obvious dependencies (Serendipity).
-         - **Stage 3: Interference (Filter)**: Weigh conflicting evidence to reduce noise/bias.
-         - **Stage 4: Collapse (Hypothesis)**: Formulate the single most probable scientific hypothesis.
-         - **Stage 5: Decoherence (Validation)**: Cross-reference with physical/biological constraints (e.g., thermodynamic limits, clinical reality).
-      
-      3. Identify "Serendipity Traces": 2-3 unexpected or novel connections between disparate nodes (e.g., Air Quality <-> Viral Entry).
-
-      IMPORTANT: Return the response in RAW JSON format only.
-      Expected JSON Structure:
+      RETURN RAW JSON ONLY:
       {
-        "reasoning": {
-            "intentsDetected": ["string"],
-            "steps": ["string"],
-            "biasCheck": "string",
-            "confidenceScore": number,
-            "quantumStages": {
-                "superposition": "string (summary of stage 1)",
-                "entanglement": "string (summary of stage 2)",
-                "interference": "string (summary of stage 3)",
-                "collapse": "string (summary of stage 4)",
-                "decoherence": "string (summary of stage 5)"
-            }
+        "universalReasoning": {
+          "firstPrinciples": ["string"],
+          "crossDomainSynergy": [{"domain": "string", "insight": "string"}],
+          "abstractLogicMapping": "string",
+          "certaintyScore": number
         },
-        "serendipityTraces": ["string"],
-        "quantumScore": number, 
+        "reasoning": {
+          "intentsDetected": ["string"],
+          "steps": ["string"],
+          "biasCheck": "string",
+          "confidenceScore": number,
+          "quantumStages": {
+            "superposition": "Mapping latent variables...",
+            "entanglement": "Correlating multi-domain signals...",
+            "interference": "Filtering noise...",
+            "collapse": "Defining hypothesis...",
+            "decoherence": "Validating against clinical data..."
+          }
+        },
         "hypothesis": "string",
-        "synthesis": "string", // Use Markdown (bullets, bold)
-        "relevantNodeIds": ["string"]
+        "synthesis": "Markdown formatted summary with bold key terms.",
+        "relevantNodeIds": ["string"],
+        "serendipityTraces": ["string"]
       }
     `;
 
-    // USING GEMINI 3 PRO WITH THINKING BUDGET FOR COMPLEX REASONING
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
-        tools: [{ googleSearch: {} }],
-        thinkingConfig: { thinkingBudget: 32768 }, 
+        thinkingConfig: { thinkingBudget: 32768 }
       }
     });
 
     const text = response.text || "{}";
     const cleanText = text.replace(/```json|```/g, '').trim();
     const result = JSON.parse(cleanText);
-    
-    // Attach sources
-    result.sources = extractSources(response);
+    result.sources = sources;
     
     return result as HypothesisResult;
 
   } catch (error) {
-    console.error("Gemini hypothesis generation failed:", error);
+    console.error("Universal Reasoning Error:", error);
     return null;
   }
 };
 
-export const validateProposal = async (proposal: { label: string; description: string; type: string }, domain: GraphDomain): Promise<{ approved: boolean; critique: string; refinedNode?: GraphNode; sources?: { title: string; uri: string }[]; provenanceScore?: number }> => {
-    const ai = getAiClient();
-    if (!ai) return { approved: false, critique: "AI Service Unavailable" };
+/**
+ * Validates a user proposal for the graph.
+ * Returns refined descriptions and grounding sources.
+ */
+export const validateProposal = async (proposal: { label: string; description: string; type: string }, domain: GraphDomain) => {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const prompt = `Validate the following proposal for the ${domain} graph: "${proposal.label} - ${proposal.description}". 
+    Use search to check scientific validity and provenance. 
+    Return JSON ONLY: 
+    {
+      "approved": boolean, 
+      "critique": "string", 
+      "provenanceScore": number, 
+      "refinedNode": { "label": "string", "description": "string" }
+    }`;
 
     try {
-        const prompt = `
-            You are a Scientific Reviewer (Governance Checkpoint) for the ${domain} Open Source Hub.
-            
-            User Proposal:
-            Label: ${proposal.label}
-            Type: ${proposal.type}
-            Description: ${proposal.description}
-
-            Task:
-            1. Use Google Search to find INDEPENDENT scientific sources/studies validating this link.
-            2. Count unique, credible studies (Provenance Check).
-            3. Rule: Reject if fewer than 2 independent studies support it.
-            4. If valid, approve.
-
-            IMPORTANT: Return RAW JSON only.
-            {
-                "approved": boolean,
-                "provenanceScore": number,
-                "critique": "string",
-                "refinedId": "string",
-                "refinedDescription": "string"
-            }
-        `;
-
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash", 
+            model: "gemini-3-flash-preview", 
             contents: prompt,
-            config: {
-                tools: [{ googleSearch: {} }],
-            }
+            config: { tools: [{ googleSearch: {} }] }
         });
-
-        const text = response.text || "{}";
-        const cleanText = text.replace(/```json|```/g, '').trim();
+        const cleanText = response.text.replace(/```json|```/g, '').trim();
         const result = JSON.parse(cleanText);
-        const sources = extractSources(response);
-        
-        if (result.approved) {
-            return {
-                approved: true,
-                critique: result.critique,
-                provenanceScore: result.provenanceScore,
-                refinedNode: {
-                    id: result.refinedId || proposal.label,
-                    label: proposal.label,
-                    type: proposal.type as NodeType,
-                    description: result.refinedDescription || proposal.description,
-                    val: 20
-                },
-                sources
-            };
-        }
-        
-        return { approved: false, critique: result.critique, sources, provenanceScore: result.provenanceScore };
-
-    } catch (e) {
-        console.error("Validation Error", e);
-        return { approved: false, critique: "Validation Error or Parsing Error" };
+        result.sources = extractSources(response);
+        return result;
+    } catch (error) {
+        console.error("Validation Error:", error);
+        return { approved: false, critique: "Validation engine failed to process request." };
     }
 };
 
 export const enrichNodeWithGemini = async (node: GraphNode, domain: GraphDomain): Promise<EnrichmentData | null> => {
-  const ai = getAiClient();
-  if (!ai) return null;
-
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const prompt = `Provide a comprehensive scientific enrichment for the entity "${node.label}" within the context of ${domain}. Use search for latest data.`;
+  
   try {
-    const prompt = `
-      You are an expert in ${domain}.
-      Entity: "${node.label}"
-      Type: ${node.type}
-      Description: ${node.description}
-      
-      Using Google Search, find the latest credible information.
-      
-      Output Format (Markdown):
-      - **Executive Summary**: High-level overview.
-      - **Key Insights**: Bullet points.
-      - **Context**: Relevance to ${domain}.
-    `;
-
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        tools: [{ googleSearch: {} }],
-      },
-    });
-
-    const text = response.text || "No enrichment data available.";
-    const sources = extractSources(response);
-
-    return {
-      summary: text,
-      sources: sources,
-      relatedTopics: [] 
-    };
-
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: { tools: [{ googleSearch: {} }] }
+      });
+      return { summary: response.text, sources: extractSources(response), relatedTopics: [] };
   } catch (error) {
-    console.error("Gemini enrichment failed:", error);
-    return {
-      summary: "Failed to load AI enrichment.",
-      sources: [],
-      relatedTopics: []
-    };
+    console.error("Enrichment Error:", error);
+    return null;
   }
 };
