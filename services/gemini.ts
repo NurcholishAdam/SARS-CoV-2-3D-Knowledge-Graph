@@ -14,45 +14,41 @@ const extractSources = (response: any) => {
       .filter((s: any): s is { title: string; uri: string } => s !== null);
 };
 
-/**
- * Universal Reasoning Model: Multi-stage Analysis
- * Stage 1: Search-based fact collection (Flash)
- * Stage 2: Universal reasoning synthesis (Pro with Thinking)
- */
 export const analyzeEvidence = async (query: string, availableNodes: GraphNode[], domain: GraphDomain): Promise<HypothesisResult | null> => {
-  // Always initialize client directly with process.env.API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const nodeContext = availableNodes.map(n => `${n.id} (${n.label}, ${n.type})`).join("\n");
 
   try {
-    // Stage 1: Verification via Gemini 3 Flash
+    // Stage 1: Multilingual Verification via Gemini 3 Flash (Input Law)
     const verificationResponse = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Search for the latest scientific evidence regarding: "${query}". Provide a concise summary of established facts and emerging uncertainties.`,
+      contents: `Perform cross-domain verification for query: "${query}". Analyze established facts and multi-intent signals. Detect graph depth required for the prompt logic.`,
       config: { tools: [{ googleSearch: {} }] }
     });
     
     const facts = verificationResponse.text;
     const sources = extractSources(verificationResponse);
 
-    // Stage 2: Universal Reasoning via Gemini 3 Pro
+    // Stage 2: LORE Compliance Reasoning via Gemini 3 Pro
     const prompt = `
-      You are the Universal Scientific Reasoning Engine.
+      You are the LORE-Compliance Reasoning Engine (Laws of Reasoning Framework).
       
       Verified Context: ${facts}
-      
       User Query: "${query}"
-      Active Primary Domain: ${domain}
-      
-      Available Knowledge Graph Context:
-      ${nodeContext}
+      Active Domain: ${domain}
+      Available Node Context: ${nodeContext}
 
-      TASK:
-      Perform "Universal Reasoning" by identifying abstract logical patterns that transcend the primary domain.
-      1. Apply First-Principles Thinking to the biological and environmental data.
-      2. Identify "Cross-Domain Synergy": How do principles from outside ${domain} (e.g. physics, economics, climatology) influence this specific query?
-      3. Map the "Abstract Logic" of the system (e.g. feedback loops, entropy, rate-distortion limits).
-      4. Synthesize a "Multi-Intent Hypothesis".
+      TASK: Perform Universal Reasoning while auditing compliance with LORE Laws.
+      
+      STAGES OF ANALYSIS:
+      1. INPUT AUDIT: Map multilingual complexity signals.
+      2. COMPUTE LAW TESTS: 
+         - Monotonicity: Is reasoning token count proportionate to graph depth?
+         - Compositionality: Compose query as X = (X1 + X2) and test if compute(X) ≈ compute(X1) + compute(X2).
+      3. ACCURACY LAW TESTS:
+         - Accuracy Monotonicity: Ensure accuracy score decreases as graph traversal depth increases.
+         - Accuracy Compositionality: Test if Accuracy(X1+X2) ≈ Accuracy(X1) * Accuracy(X2).
+      4. QUANTUM ENHANCEMENTS: Use Quantum Circuit Depth as a proxy for logic gate complexity.
 
       RETURN RAW JSON ONLY:
       {
@@ -62,21 +58,39 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
           "abstractLogicMapping": "string",
           "certaintyScore": number
         },
+        "lore": {
+          "complexity": {
+            "graphDepth": number,
+            "entropy": number,
+            "quantumCircuitDepth": number,
+            "tokenCount": number
+          },
+          "laws": {
+            "computeMonotonicity": boolean,
+            "compositionalityScore": number,
+            "accuracyDecay": number
+          },
+          "compliance": {
+            "nMAD": number, 
+            "spearman": number,
+            "status": "High" | "Partial" | "Fail"
+          }
+        },
         "reasoning": {
           "intentsDetected": ["string"],
           "steps": ["string"],
-          "biasCheck": "string",
+          "biasCheck": "Reflect on AMR data gaps or specific domain epistemic blind spots.",
           "confidenceScore": number,
           "quantumStages": {
-            "superposition": "Mapping latent variables...",
-            "entanglement": "Correlating multi-domain signals...",
-            "interference": "Filtering noise...",
-            "collapse": "Defining hypothesis...",
-            "decoherence": "Validating against clinical data..."
+            "superposition": "string",
+            "entanglement": "string",
+            "interference": "string",
+            "collapse": "string",
+            "decoherence": "string"
           }
         },
         "hypothesis": "string",
-        "synthesis": "Markdown formatted summary with bold key terms.",
+        "synthesis": "Markdown formatted summary.",
         "relevantNodeIds": ["string"],
         "serendipityTraces": ["string"]
       }
@@ -98,56 +112,32 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
     return result as HypothesisResult;
 
   } catch (error) {
-    console.error("Universal Reasoning Error:", error);
+    console.error("LORE Reasoning Error:", error);
     return null;
   }
 };
 
-/**
- * Validates a user proposal for the graph.
- * Returns refined descriptions and grounding sources.
- */
 export const validateProposal = async (proposal: { label: string; description: string; type: string }, domain: GraphDomain) => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const prompt = `Validate the following proposal for the ${domain} graph: "${proposal.label} - ${proposal.description}". 
-    Use search to check scientific validity and provenance. 
-    Return JSON ONLY: 
-    {
-      "approved": boolean, 
-      "critique": "string", 
-      "provenanceScore": number, 
-      "refinedNode": { "label": "string", "description": "string" }
-    }`;
-
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview", 
-            contents: prompt,
-            config: { tools: [{ googleSearch: {} }] }
-        });
-        const cleanText = response.text.replace(/```json|```/g, '').trim();
-        const result = JSON.parse(cleanText);
-        result.sources = extractSources(response);
-        return result;
-    } catch (error) {
-        console.error("Validation Error:", error);
-        return { approved: false, critique: "Validation engine failed to process request." };
-    }
-};
-
-export const enrichNodeWithGemini = async (node: GraphNode, domain: GraphDomain): Promise<EnrichmentData | null> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `Provide a comprehensive scientific enrichment for the entity "${node.label}" within the context of ${domain}. Use search for latest data.`;
-  
-  try {
+    const prompt = `Validate the following proposal for the ${domain} graph: "${proposal.label} - ${proposal.description}". Use search. Return JSON {approved: boolean, critique: string, provenanceScore: number, refinedNode: {label: string, description: string}}`;
     const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3-flash-preview", 
         contents: prompt,
         config: { tools: [{ googleSearch: {} }] }
-      });
-      return { summary: response.text, sources: extractSources(response), relatedTopics: [] };
-  } catch (error) {
-    console.error("Enrichment Error:", error);
-    return null;
-  }
+    });
+    const cleanText = response.text.replace(/```json|```/g, '').trim();
+    const res = JSON.parse(cleanText);
+    res.sources = extractSources(response);
+    return res;
+};
+
+export const enrichNodeWithGemini = async (node: GraphNode, domain: GraphDomain) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const prompt = `Enrich entity "${node.label}" in ${domain} context. Return Markdown.`;
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: prompt,
+    config: { tools: [{ googleSearch: {} }] }
+  });
+  return { summary: response.text, sources: extractSources(response), relatedTopics: [] };
 };

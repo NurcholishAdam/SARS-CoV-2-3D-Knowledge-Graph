@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Sparkles, X, BrainCircuit, ArrowRight, ShieldCheck, ListChecks, Activity, Split, ExternalLink, Globe, Layers, Zap, Scale, Network } from 'lucide-react';
+import { Send, Sparkles, X, BrainCircuit, ArrowRight, Activity, Globe, Zap, Scale, Network, ShieldCheck, Binary } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { HypothesisResult } from '../types';
 
@@ -48,22 +48,29 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
       <div className="p-4 bg-blue-900/20 border-b border-blue-500/20 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-2 text-blue-400">
           <BrainCircuit size={20} className="animate-pulse" />
-          <h3 className="font-bold tracking-wide text-sm">UNIVERSAL REASONING ENGINE</h3>
+          <h3 className="font-bold tracking-wide text-sm">LORE REASONING ENGINE</h3>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-          <X size={18} />
-        </button>
+        <div className="flex items-center gap-3">
+          {result && (
+            <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${result.lore.compliance.status === 'High' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}>
+              <ShieldCheck size={12} /> LORE: {result.lore.compliance.status}
+            </div>
+          )}
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Content Area */}
       <div className="p-4 overflow-y-auto custom-scrollbar">
         {!result && !isLoading && (
           <div className="text-gray-400 text-sm mb-4">
-            <p className="mb-2">Execute complex scientific queries using the <strong>Universal Reasoning Model</strong>.</p>
+            <p className="mb-2">Execute complex scientific queries using the <strong>Laws of Reasoning Framework</strong>.</p>
             <ul className="list-disc list-inside space-y-1 text-xs text-gray-500">
-              <li>First-Principles abstraction</li>
-              <li>Cross-Domain Logic Collapsing</li>
-              <li>Rate-Distortion Optimized Retrieval</li>
+              <li>Input Complexity Sampling</li>
+              <li>Compute Monotonicity Audit</li>
+              <li>Compositional Accuracy Laws</li>
             </ul>
           </div>
         )}
@@ -74,7 +81,7 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
             <textarea
                 value={evidence}
                 onChange={(e) => setEvidence(e.target.value)}
-                placeholder="E.g., Map the causal link between PM2.5 pollutants and ACE2 upregulation in metabolic syndrome cohorts."
+                placeholder="E.g., Compare viral entry mechanisms of B.1.1.7 vs. BA.1 through the lens of air quality-induced inflammation."
                 className="w-full h-32 bg-black/40 border border-white/10 rounded-xl p-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none text-sm transition-all"
             />
             <button 
@@ -95,7 +102,7 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
                     <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
                     <Network size={24} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-400 animate-ping" />
                 </div>
-                <div className="text-xs text-blue-400 font-mono tracking-widest animate-pulse">COLLAPSING INFERENCE STATES...</div>
+                <div className="text-xs text-blue-400 font-mono tracking-widest animate-pulse uppercase">Auditing Reasoning Laws...</div>
             </div>
         )}
 
@@ -103,16 +110,30 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
         {result && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 
+                {/* LORE Metrics / Complexity Block */}
+                <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-black/40 p-3 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-1 text-[9px] font-bold text-gray-500 uppercase mb-1">
+                            <Binary size={10} className="text-cyan-500" /> Circuit Depth
+                        </div>
+                        <div className="text-sm font-mono text-cyan-200">{result.lore.complexity.quantumCircuitDepth} Gates</div>
+                    </div>
+                    <div className="bg-black/40 p-3 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-1 text-[9px] font-bold text-gray-500 uppercase mb-1">
+                            <Scale size={10} className="text-amber-500" /> Spearman ρ
+                        </div>
+                        <div className="text-sm font-mono text-amber-200">{result.lore.compliance.spearman.toFixed(3)}</div>
+                    </div>
+                </div>
+
                 {/* Universal Reasoning Block */}
                 <div className="bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 space-y-4 shadow-inner">
                     <div className="flex items-center justify-between border-b border-blue-500/10 pb-2">
                         <h4 className="flex items-center gap-2 text-xs font-bold text-blue-300 uppercase tracking-widest">
-                            <Scale size={14} /> Abstract Logic
+                             Abstract Logic Mapping
                         </h4>
-                        <span className="text-[10px] text-blue-500 font-mono">Depth: 32K Tokens</span>
                     </div>
 
-                    {/* First Principles */}
                     <div className="space-y-1">
                         <p className="text-[10px] text-gray-500 font-bold uppercase">First Principles</p>
                         <div className="flex flex-wrap gap-1">
@@ -124,38 +145,10 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
                         </div>
                     </div>
 
-                    {/* Cross-Domain Synergy */}
-                    <div className="space-y-2">
-                        <p className="text-[10px] text-gray-500 font-bold uppercase">Cross-Domain Synergy</p>
-                        {result.universalReasoning.crossDomainSynergy.map((s, i) => (
-                            <div key={i} className="bg-black/30 p-2 rounded border border-white/5 flex gap-2">
-                                <span className="text-[10px] font-bold text-fuchsia-400 shrink-0">[{s.domain}]</span>
-                                <span className="text-[10px] text-gray-300 leading-tight">{s.insight}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Abstract Mapping */}
                     <div className="bg-black/20 p-2 rounded text-[11px] text-blue-100/80 border-l-2 border-blue-500/40">
                         {result.universalReasoning.abstractLogicMapping}
                     </div>
                 </div>
-
-                {/* Serendipity Traces */}
-                {result.serendipityTraces && result.serendipityTraces.length > 0 && (
-                    <div className="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 rounded-xl p-3">
-                         <h4 className="flex items-center gap-2 text-xs font-bold text-indigo-300 uppercase mb-2">
-                            <Zap size={14} className="text-yellow-400" /> Serendipity Traces
-                        </h4>
-                        <ul className="space-y-1">
-                            {result.serendipityTraces.map((trace, i) => (
-                                <li key={i} className="text-[11px] text-indigo-100 flex gap-2">
-                                    <span className="text-indigo-500">•</span> {trace}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
 
                 {/* Main Synthesis */}
                 <div className="bg-gradient-to-br from-slate-900/80 to-blue-950/20 rounded-xl p-5 border border-white/10 shadow-lg">
@@ -166,12 +159,6 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
                     <div className="prose prose-invert prose-sm max-w-none text-xs text-gray-200 leading-relaxed font-light prose-strong:text-blue-300 prose-ul:list-disc prose-li:marker:text-blue-500/50">
                         <ReactMarkdown>{displayedSynthesis}</ReactMarkdown>
                     </div>
-                    
-                    {!displayedSynthesis && (
-                         <span className="flex items-center gap-2 text-[10px] text-gray-500 animate-pulse mt-1">
-                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Mapping scientific intent...
-                         </span>
-                    )}
                 </div>
 
                 {/* Sources */}
@@ -184,7 +171,6 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
                       {result.sources.map((source, i) => (
                         <li key={i}>
                           <a href={source.uri} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[10px] text-gray-400 hover:text-sky-300 transition-colors truncate">
-                            <ExternalLink size={10} className="shrink-0" />
                             <span className="truncate">{source.title}</span>
                           </a>
                         </li>
@@ -197,7 +183,7 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
                     onClick={() => { setEvidence(''); onAnalyze(''); }}
                     className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2"
                 >
-                   <ArrowRight size={14} /> Reset Engine
+                   <ArrowRight size={14} /> New Prompt
                 </button>
             </div>
         )}

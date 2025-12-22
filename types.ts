@@ -1,20 +1,16 @@
 
+
 export enum NodeType {
-  // Bio / Viral Components
   VIRUS_PROTEIN = 'Viral Protein',
   VIRAL_CAPSID = 'Capsid Protein',
   VIRAL_ENVELOPE = 'Envelope Protein',
   VIRAL_MATRIX = 'Matrix Protein',
   VIRAL_NSP = 'Non-Structural Protein',
   VIRAL_SECRETED = 'Secreted/Accessory',
-  
-  // Viral Functions
   FUNC_ENTRY = 'Entry Mechanism',
   FUNC_REPLICATION = 'Replication Machinery',
   FUNC_PROTEASE = 'Protease Activity',
   FUNC_IMMUNE_MOD = 'Immune Modulation',
-
-  // General Bio
   HUMAN_PROTEIN = 'Human Protein',
   DRUG = 'Drug/Compound',
   PHENOTYPE = 'Phenotype/Symptom',
@@ -25,18 +21,12 @@ export enum NodeType {
   DATASET = 'Dataset',
   LITERATURE = 'Literature',
   GO_TERM = 'Process',
-  
-  // Clinical / Oncology
   CLINICAL_TRIAL = 'Clinical Trial',
   PATIENT_COHORT = 'Patient Cohort',
   TUMOR_MARKER = 'Tumor Marker',
-  
-  // AMR & SynBio
   GENE = 'Gene/Genetic Part',
   BACTERIA = 'Microbe/Strain',
   TOOL = 'Tool/Method',
-  
-  // Climate & Env & Socio
   POLLUTANT = 'Pollutant/Factor',
   LOCATION = 'Location/Region',
   EVENT = 'Climate Event',
@@ -44,13 +34,9 @@ export enum NodeType {
   COMORBIDITY = 'Comorbidity',
   COINFECTION = 'Coinfection',
   ENVIRONMENTAL = 'Environmental Factor',
-  
-  // Policy & Ethics
   POLICY = 'Policy/Framework',
   ETHICS = 'Ethical Concern',
   ACTOR = 'Actor/Agency',
-
-  // Interactive
   QUERY = 'User Evidence',
   HYPOTHESIS = 'AI Hypothesis'
 }
@@ -66,39 +52,23 @@ export enum GraphDomain {
   QUANTUM_HEALTH = 'Quantum AI in Health'
 }
 
-export interface NodeMetadata {
-  doi?: string;
-  authors?: string;
-  year?: string;
-  journal?: string;
-  pdbId?: string;
-}
-
-export interface GraphNode {
-  id: string;
-  label: string;
-  type: NodeType;
-  description: string;
-  val?: number;
-  color?: string;
-  metadata?: NodeMetadata;
-}
-
-export interface GraphLink {
-  source: string | GraphNode;
-  target: string | GraphNode;
-  label: string;
-}
-
-export interface GraphData {
-  nodes: GraphNode[];
-  links: GraphLink[];
-}
-
-export interface EnrichmentData {
-  summary: string;
-  sources: { title: string; uri: string }[];
-  relatedTopics: string[];
+export interface LoreMetrics {
+  complexity: {
+    graphDepth: number;
+    entropy: number;
+    quantumCircuitDepth: number; // Proxy for reasoning complexity
+    tokenCount: number;
+  };
+  laws: {
+    computeMonotonicity: boolean; // deeper graph -> more tokens
+    compositionalityScore: number; // compute(x1+x2) vs c(x1)+c(x2)
+    accuracyDecay: number; // Accuracy vs depth
+  };
+  compliance: {
+    nMAD: number; // Compositionality error
+    spearman: number; // Monotonicity correlation
+    status: 'High' | 'Partial' | 'Fail';
+  };
 }
 
 export interface HypothesisResult {
@@ -111,6 +81,7 @@ export interface HypothesisResult {
     abstractLogicMapping: string;
     certaintyScore: number;
   };
+  lore: LoreMetrics;
   reasoning: {
     intentsDetected: string[];
     steps: string[];
@@ -128,11 +99,26 @@ export interface HypothesisResult {
   sources?: { title: string; uri: string }[];
 }
 
-export type LayoutMode = '3d-force' | 'dag-td' | 'dag-lr' | 'radial';
+export interface GraphNode {
+  id: string;
+  label: string;
+  type: NodeType;
+  description: string;
+  val?: number;
+  metadata?: any;
+}
 
-/**
- * Interface representing a proposal in the Open-Source Hub.
- */
+export interface GraphLink {
+  source: string | GraphNode;
+  target: string | GraphNode;
+  label: string;
+}
+
+export interface GraphData {
+  nodes: GraphNode[];
+  links: GraphLink[];
+}
+
 export interface HubProposal {
   id: string;
   nodeLabel: string;
@@ -142,4 +128,13 @@ export interface HubProposal {
   aiCritique: string;
   sources?: { title: string; uri: string }[];
   provenanceScore?: number;
+}
+
+export type LayoutMode = '3d-force' | 'dag-td' | 'radial';
+
+// AI-powered enrichment data for graph nodes
+export interface EnrichmentData {
+  summary: string;
+  sources: { title: string; uri: string }[];
+  relatedTopics: string[];
 }
