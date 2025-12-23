@@ -19,7 +19,6 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
   const nodeContext = availableNodes.map(n => `${n.id} (${n.label}, ${n.type})`).join("\n");
 
   try {
-    // Stage 1: Multilingual Verification via Gemini 3 Flash (Input Law)
     const verificationResponse = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Perform cross-domain verification for query: "${query}". Analyze established facts and multi-intent signals. Detect graph depth required for the prompt logic.`,
@@ -29,29 +28,23 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
     const facts = verificationResponse.text;
     const sources = extractSources(verificationResponse);
 
-    // Stage 2: LORE Compliance Reasoning via Gemini 3 Pro
     const prompt = `
-      You are the LORE-Compliance Reasoning Engine (Laws of Reasoning Framework).
+      You are the LORE-UR Unified Reasoning Architect.
       
       Verified Context: ${facts}
       User Query: "${query}"
       Active Domain: ${domain}
       Available Node Context: ${nodeContext}
 
-      TASK: Perform Universal Reasoning while auditing compliance with LORE Laws.
-      
-      STAGES OF ANALYSIS:
-      1. INPUT AUDIT: Map multilingual complexity signals.
-      2. COMPUTE LAW TESTS: 
-         - Monotonicity: Is reasoning token count proportionate to graph depth?
-         - Compositionality: Compose query as X = (X1 + X2) and test if compute(X) ≈ compute(X1) + compute(X2).
-      3. ACCURACY LAW TESTS:
-         - Accuracy Monotonicity: Ensure accuracy score decreases as graph traversal depth increases.
-         - Accuracy Compositionality: Test if Accuracy(X1+X2) ≈ Accuracy(X1) * Accuracy(X2).
-      4. QUANTUM ENHANCEMENTS: Use Quantum Circuit Depth as a proxy for logic gate complexity.
+      TASK: Bridge Universal Reasoning (Conceptual First Principles) with Laws of Reasoning (Technical Accuracy Audits).
 
       RETURN RAW JSON ONLY:
       {
+        "architectureBridge": {
+          "coreSynthesis": "Explain how Universal First Principles were audited by LORE laws in this specific inference.",
+          "lawAlignment": "Which LORE law (Monotonicity/Compositionality) was most critical for this query?",
+          "universalImpact": "How does this logic scale across different scientific domains?"
+        },
         "universalReasoning": {
           "firstPrinciples": ["string"],
           "crossDomainSynergy": [{"domain": "string", "insight": "string"}],
@@ -79,14 +72,10 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
         "reasoning": {
           "intentsDetected": ["string"],
           "steps": ["string"],
-          "biasCheck": "Reflect on AMR data gaps or specific domain epistemic blind spots.",
+          "biasCheck": "Analyze epistemic biases. For AMR, explicitly address self-reported data and phenotypic-genotypic gaps.",
           "confidenceScore": number,
           "quantumStages": {
-            "superposition": "string",
-            "entanglement": "string",
-            "interference": "string",
-            "collapse": "string",
-            "decoherence": "string"
+            "superposition": "string", "entanglement": "string", "interference": "string", "collapse": "string", "decoherence": "string"
           }
         },
         "hypothesis": "string",
@@ -112,14 +101,14 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
     return result as HypothesisResult;
 
   } catch (error) {
-    console.error("LORE Reasoning Error:", error);
+    console.error("LORE-UR Architecture Error:", error);
     return null;
   }
 };
 
 export const validateProposal = async (proposal: { label: string; description: string; type: string }, domain: GraphDomain) => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const prompt = `Validate the following proposal for the ${domain} graph: "${proposal.label} - ${proposal.description}". Use search. Return JSON {approved: boolean, critique: string, provenanceScore: number, refinedNode: {label: string, description: string}}`;
+    const prompt = `Validate proposal for ${domain}: "${proposal.label}". Return JSON {approved: boolean, critique: string, provenanceScore: number, refinedNode: {label: string, description: string}}`;
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview", 
         contents: prompt,

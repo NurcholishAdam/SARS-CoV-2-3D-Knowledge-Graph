@@ -55,6 +55,29 @@ const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Compute related literature based on keyword filtering
+  const relatedLiterature = useMemo(() => {
+    if (!selectedNode) return [];
+    
+    // Extract keywords from selected node (label and description)
+    const stopWords = new Set(['this', 'that', 'with', 'from', 'their', 'these', 'those', 'about', 'under', 'into', 'which', 'could', 'would']);
+    const nodeText = (selectedNode.label + ' ' + (selectedNode.description || '')).toLowerCase();
+    const keywords = nodeText
+      .split(/\W+/)
+      .filter(word => word.length > 3 && !stopWords.has(word));
+
+    if (keywords.length === 0) return [];
+
+    // Filter literature nodes in the current graph that contain any of these keywords
+    return dynamicGraphData.nodes.filter(n => {
+      if (n.type !== NodeType.LITERATURE || n.id === selectedNode.id) return false;
+      
+      const litText = (n.label + ' ' + (n.description || '')).toLowerCase();
+      // Check for partial or full keyword matches
+      return keywords.some(kw => litText.includes(kw));
+    }).slice(0, 5); // Limit results to top 5 to maintain sidebar clarity
+  }, [selectedNode, dynamicGraphData.nodes]);
+
   const handleNodeClick = async (node: GraphNode) => {
     if (isPathfindingMode) {
         if (!pathSource) {
@@ -183,6 +206,7 @@ const App: React.FC = () => {
       {selectedNode && (
         <Sidebar 
             node={selectedNode}
+            relatedLiterature={relatedLiterature}
             enrichment={enrichmentCache[selectedNode.id] || null}
             isLoading={loadingEnrichment && !enrichmentCache[selectedNode.id]}
             onClose={() => setSelectedNode(null)}

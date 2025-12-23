@@ -170,19 +170,64 @@ const ONCOLOGY_DATA: GraphData = {
 
 const AMR_DATA: GraphData = {
   nodes: [
-    { id: 'NDM-1', label: 'NDM-1', type: NodeType.GENE, description: 'New Delhi metallo-beta-lactamase 1.', val: 25 },
-    { id: 'K.pneumoniae', label: 'K. pneumoniae', type: NodeType.BACTERIA, description: 'Klebsiella pneumoniae.', val: 22 },
-    { id: 'Carbapenem', label: 'Carbapenem', type: NodeType.DRUG, description: 'Last-resort antibiotic.', val: 20 },
-    { id: 'Colistin', label: 'Colistin', type: NodeType.DRUG, description: 'Last-resort antibiotic for MDR.', val: 20 },
-    { id: 'MCR-1', label: 'MCR-1', type: NodeType.GENE, description: 'Mobilized colistin resistance.', val: 25 },
-    { id: 'E.coli', label: 'E. coli', type: NodeType.BACTERIA, description: 'Escherichia coli.', val: 20 },
-    { id: 'Surveillance:Glass', label: 'GLASS', type: NodeType.SURVEILLANCE, description: 'Global Antimicrobial Resistance and Use Surveillance System.', val: 18 },
+    // Existing Genes & Bacteria
+    { id: 'NDM-1', label: 'NDM-1', type: NodeType.GENE, description: 'New Delhi metallo-beta-lactamase 1, conferring broad carbapenem resistance.', val: 25 },
+    { id: 'MCR-1', label: 'MCR-1', type: NodeType.GENE, description: 'Plasmid-mediated colistin resistance mechanism.', val: 25 },
+    { id: 'mecA', label: 'mecA Gene', type: NodeType.GENE, description: 'Encodes PBP2a, conferring resistance to methicillin and other beta-lactams.', val: 22 },
+    { id: 'KPC', label: 'KPC enzyme', type: NodeType.GENE, description: 'Klebsiella pneumoniae carbapenemase; hydrolyzes all beta-lactams.', val: 22 },
+    { id: 'MexAB-OprM', label: 'MexAB-OprM', type: NodeType.GENE, description: 'Multidrug efflux pump system in P. aeruginosa.', val: 20 },
+    { id: 'rpoB', label: 'rpoB Gene', type: NodeType.GENE, description: 'Beta subunit of RNA polymerase; mutations linked to rifampicin resistance.', val: 20 },
+
+    // Strains
+    { id: 'K.pneumoniae', label: 'K. pneumoniae', type: NodeType.BACTERIA, description: 'Klebsiella pneumoniae; common hospital-acquired pathogen.', val: 22 },
+    { id: 'E.coli', label: 'E. coli', type: NodeType.BACTERIA, description: 'Escherichia coli; significant driver of community AMR.', val: 20 },
+    { id: 'P.aeruginosa', label: 'P. aeruginosa', type: NodeType.BACTERIA, description: 'Pseudomonas aeruginosa; opportunistic, highly resistant pathogen.', val: 22 },
+    { id: 'A.baumannii', label: 'A. baumannii', type: NodeType.BACTERIA, description: 'Acinetobacter baumannii; problematic in ICU settings.', val: 22 },
+    { id: 'S.aureus', label: 'S. aureus (MRSA)', type: NodeType.BACTERIA, description: 'Methicillin-resistant Staphylococcus aureus.', val: 24 },
+    { id: 'M.tuberculosis', label: 'M. tuberculosis', type: NodeType.BACTERIA, description: 'Mycobacterium tuberculosis; agent of TB, multi-drug resistant strains emerging.', val: 26 },
+
+    // Drugs
+    { id: 'Carbapenem', label: 'Carbapenem', type: NodeType.DRUG, description: 'Potent broad-spectrum beta-lactam antibiotic.', val: 20 },
+    { id: 'Colistin', label: 'Colistin', type: NodeType.DRUG, description: 'Polymyxin antibiotic used as a last resort.', val: 20 },
+    { id: 'Methicillin', label: 'Methicillin', type: NodeType.DRUG, description: 'Beta-lactam antibiotic used to treat S. aureus.', val: 18 },
+    { id: 'Meropenem', label: 'Meropenem', type: NodeType.DRUG, description: 'Type of Carbapenem antibiotic.', val: 18 },
+    { id: 'Rifampicin', label: 'Rifampicin', type: NodeType.DRUG, description: 'Key first-line anti-tuberculosis drug.', val: 20 },
+
+    // Phenotypes
+    { id: 'BroadSpectrumResistance', label: 'Broad Spectrum Resistance', type: NodeType.PHENOTYPE, description: 'Resistance to a wide range of antibiotics, commonly associated with metallo-beta-lactamase (MBL) activity. This phenotype poses a critical challenge to last-resort antibiotics like carbapenems.', val: 20 },
+
+    // Surveillance & Locations
+    { id: 'Surveillance:Glass', label: 'GLASS (WHO)', type: NodeType.SURVEILLANCE, description: 'Global Antimicrobial Resistance and Use Surveillance System.', val: 18 },
+    { id: 'Loc:SouthAsia', label: 'South Asia', type: NodeType.LOCATION, description: 'Region with high NDM-1 prevalence.', val: 15 },
+    { id: 'Loc:SubSaharanAfrica', label: 'Sub-Saharan Africa', type: NodeType.LOCATION, description: 'High burden region for TB and enteric AMR.', val: 15 },
+    { id: 'Loc:NorthAmerica', label: 'North America', type: NodeType.LOCATION, description: 'Active monitoring for emerging resistance mechanisms.', val: 15 },
   ],
   links: [
+    // Gene-Bacteria Findings
     { source: 'NDM-1', target: 'K.pneumoniae', label: 'FOUND_IN' },
-    { source: 'NDM-1', target: 'Carbapenem', label: 'CONFERS_RESISTANCE' },
+    { source: 'NDM-1', target: 'E.coli', label: 'FOUND_IN' },
     { source: 'MCR-1', target: 'E.coli', label: 'FOUND_IN' },
+    { source: 'mecA', target: 'S.aureus', label: 'FOUND_IN' },
+    { source: 'KPC', target: 'K.pneumoniae', label: 'FOUND_IN' },
+    { source: 'MexAB-OprM', target: 'P.aeruginosa', label: 'MECHANISM_IN' },
+    { source: 'rpoB', target: 'M.tuberculosis', label: 'FOUND_IN' },
+
+    // Resistance Mechanisms
+    { source: 'NDM-1', target: 'Carbapenem', label: 'CONFERS_RESISTANCE' },
+    { source: 'NDM-1', target: 'Meropenem', label: 'CONFERS_RESISTANCE' },
+    { source: 'NDM-1', target: 'BroadSpectrumResistance', label: 'CONFERS' },
     { source: 'MCR-1', target: 'Colistin', label: 'CONFERS_RESISTANCE' },
+    { source: 'mecA', target: 'Methicillin', label: 'CONFERS_RESISTANCE' },
+    { source: 'KPC', target: 'Carbapenem', label: 'DEGRADES' },
+    { source: 'MexAB-OprM', target: 'Meropenem', label: 'EFFLUXES' },
+    { source: 'rpoB', target: 'Rifampicin', label: 'CONFERS_RESISTANCE' },
+
+    // Global Transmission & Prevalence
+    { source: 'NDM-1', target: 'Loc:SouthAsia', label: 'ORIGINATED_IN' },
+    { source: 'K.pneumoniae', target: 'Loc:SouthAsia', label: 'PREVALENT_IN' },
+    { source: 'M.tuberculosis', target: 'Loc:SubSaharanAfrica', label: 'HIGH_BURDEN_IN' },
+    { source: 'A.baumannii', target: 'Loc:NorthAmerica', label: 'MONITORED_IN' },
+    { source: 'Surveillance:Glass', target: 'Loc:SouthAsia', label: 'COLLECTS_DATA' },
     { source: 'Surveillance:Glass', target: 'K.pneumoniae', label: 'MONITORS' },
   ]
 };

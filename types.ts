@@ -1,5 +1,4 @@
 
-
 export enum NodeType {
   VIRUS_PROTEIN = 'Viral Protein',
   VIRAL_CAPSID = 'Capsid Protein',
@@ -56,17 +55,17 @@ export interface LoreMetrics {
   complexity: {
     graphDepth: number;
     entropy: number;
-    quantumCircuitDepth: number; // Proxy for reasoning complexity
+    quantumCircuitDepth: number;
     tokenCount: number;
   };
   laws: {
-    computeMonotonicity: boolean; // deeper graph -> more tokens
-    compositionalityScore: number; // compute(x1+x2) vs c(x1)+c(x2)
-    accuracyDecay: number; // Accuracy vs depth
+    computeMonotonicity: boolean;
+    compositionalityScore: number;
+    accuracyDecay: number;
   };
   compliance: {
-    nMAD: number; // Compositionality error
-    spearman: number; // Monotonicity correlation
+    nMAD: number;
+    spearman: number;
     status: 'High' | 'Partial' | 'Fail';
   };
 }
@@ -75,6 +74,11 @@ export interface HypothesisResult {
   hypothesis: string;
   synthesis: string;
   relevantNodeIds: string[];
+  architectureBridge: {
+    coreSynthesis: string;
+    lawAlignment: string;
+    universalImpact: string;
+  };
   universalReasoning: {
     firstPrinciples: string[];
     crossDomainSynergy: { domain: string; insight: string }[];
@@ -132,7 +136,6 @@ export interface HubProposal {
 
 export type LayoutMode = '3d-force' | 'dag-td' | 'radial';
 
-// AI-powered enrichment data for graph nodes
 export interface EnrichmentData {
   summary: string;
   sources: { title: string; uri: string }[];
