@@ -14,6 +14,7 @@ interface GraphViewerProps {
   highlightedLinkPair?: Set<string>; // For Pathfinding: Set of "source-target" strings
   selectedNodeId?: string;
   isQuantumMode: boolean;
+  quantumLinkDensity: number;
   layoutMode: LayoutMode;
 }
 
@@ -26,6 +27,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({
     highlightedLinkPair,
     selectedNodeId, 
     isQuantumMode,
+    quantumLinkDensity,
     layoutMode
 }) => {
   const fgRef = useRef<any>(null);
@@ -46,8 +48,13 @@ const GraphViewer: React.FC<GraphViewerProps> = ({
                     .map(link => ({ ...link, opacity: (link.opacity || 1) - 0.01 }))
                     .filter(link => link.opacity > 0);
 
-                // 2. Probabilistically add new transient links
-                if (Math.random() > 0.96 && data.nodes.length > 5) {
+                // 2. Probabilistically add new transient links based on UI density
+                // Higher density = lower threshold for random selection
+                // Max density (100) -> 0.85 threshold (15% chance/frame)
+                // Min density (0) -> 1.0 threshold (0% chance/frame)
+                const threshold = 1.0 - (quantumLinkDensity / 600); // Maps 0-100 to roughly 1.0-0.83
+                
+                if (Math.random() > threshold && data.nodes.length > 5) {
                     const source = data.nodes[Math.floor(Math.random() * data.nodes.length)];
                     const target = data.nodes[Math.floor(Math.random() * data.nodes.length)];
                     
@@ -71,7 +78,7 @@ const GraphViewer: React.FC<GraphViewerProps> = ({
         setQuantumLinks([]);
     }
     return () => cancelAnimationFrame(frameId);
-  }, [isQuantumMode, data.nodes]);
+  }, [isQuantumMode, quantumLinkDensity, data.nodes]);
 
   // Merge real links with transient quantum links
   const displayLinks = isQuantumMode 

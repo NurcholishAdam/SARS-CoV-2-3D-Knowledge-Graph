@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Search, Info, BookOpen, XCircle, FlaskConical, Atom, GitPullRequest, Globe, FileText, BarChart2, Waypoints, Layout } from 'lucide-react';
+import { Search, Info, BookOpen, XCircle, FlaskConical, Atom, GitPullRequest, Globe, FileText, BarChart2, Waypoints, Layout, SlidersHorizontal } from 'lucide-react';
 import { GraphNode, NodeType, GraphDomain, LayoutMode } from '../types';
 
 interface ControlPanelProps {
@@ -10,6 +10,8 @@ interface ControlPanelProps {
   isHypothesisMode: boolean;
   onToggleQuantum: () => void;
   isQuantumMode: boolean;
+  quantumLinkDensity: number;
+  onQuantumLinkDensityChange: (density: number) => void;
   onToggleHub: () => void;
   isHubOpen: boolean;
   onToggleBenchmark: () => void;
@@ -31,6 +33,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     isHypothesisMode,
     onToggleQuantum,
     isQuantumMode,
+    quantumLinkDensity,
+    onQuantumLinkDensityChange,
     onToggleHub,
     isHubOpen,
     onToggleBenchmark,
@@ -157,13 +161,38 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                     <FlaskConical size={20} />
                 </button>
                 
-                <button 
-                    onClick={onToggleQuantum}
-                    className={`p-3 rounded-xl border backdrop-blur-md transition-all shadow-lg ${isQuantumMode ? 'bg-cyan-600 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.5)]' : 'bg-slate-900/80 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'}`}
-                    title="Quantum-Inspired Mode"
-                >
-                    <Atom size={20} className={isQuantumMode ? "animate-spin-slow" : ""} />
-                </button>
+                <div className="relative">
+                    <button 
+                        onClick={onToggleQuantum}
+                        className={`p-3 rounded-xl border backdrop-blur-md transition-all shadow-lg ${isQuantumMode ? 'bg-cyan-600 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.5)]' : 'bg-slate-900/80 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'}`}
+                        title="Quantum-Inspired Mode"
+                    >
+                        <Atom size={20} className={isQuantumMode ? "animate-spin-slow" : ""} />
+                    </button>
+                    
+                    {/* Quantum Settings Popover */}
+                    {isQuantumMode && (
+                        <div className="absolute top-full right-0 mt-3 w-48 bg-slate-900/95 backdrop-blur-xl border border-cyan-500/30 rounded-xl p-4 shadow-2xl animate-in fade-in slide-in-from-top-2">
+                            <div className="flex items-center gap-2 mb-3 text-cyan-400">
+                                <SlidersHorizontal size={14} />
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Flux Density</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                min="0" 
+                                max="100" 
+                                value={quantumLinkDensity}
+                                onChange={(e) => onQuantumLinkDensityChange(parseInt(e.target.value))}
+                                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                            />
+                            <div className="flex justify-between mt-2">
+                                <span className="text-[8px] text-gray-500 uppercase">Sparse</span>
+                                <span className="text-[10px] font-mono text-cyan-300">{quantumLinkDensity}%</span>
+                                <span className="text-[8px] text-gray-500 uppercase">Dense</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                  <button 
                     onClick={onTogglePathfinding}

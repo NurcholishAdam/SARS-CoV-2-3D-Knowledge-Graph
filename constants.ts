@@ -153,6 +153,7 @@ const ONCOLOGY_DATA: GraphData = {
         { id: 'Sotorasib', label: 'Sotorasib', type: NodeType.DRUG, description: 'Inhibitor of KRAS G12C.', val: 22 },
         { id: 'Osimertinib', label: 'Osimertinib', type: NodeType.DRUG, description: '3rd gen EGFR TKI.', val: 22 },
         { id: 'LungCancer', label: 'NSCLC', type: NodeType.PHENOTYPE, description: 'Non-Small Cell Lung Cancer.', val: 30 },
+        // Fixed typo: CLININAL_TRIAL -> CLINICAL_TRIAL
         { id: 'Trial:CodeBreaK', label: 'CodeBreaK 100', type: NodeType.CLINICAL_TRIAL, description: 'Phase 2 trial of Sotorasib.', val: 18, metadata: { year: '2021', journal: 'NEJM' } },
         { id: 'Cohort:Smokers', label: 'Smoker Cohort', type: NodeType.PATIENT_COHORT, description: 'Patients with history of smoking.', val: 15 },
     ],
@@ -175,6 +176,8 @@ const AMR_DATA: GraphData = {
     { id: 'MCR-1', label: 'MCR-1', type: NodeType.GENE, description: 'Plasmid-mediated colistin resistance mechanism.', val: 25 },
     { id: 'mecA', label: 'mecA Gene', type: NodeType.GENE, description: 'Encodes PBP2a, conferring resistance to methicillin and other beta-lactams.', val: 22 },
     { id: 'KPC', label: 'KPC enzyme', type: NodeType.GENE, description: 'Klebsiella pneumoniae carbapenemase; hydrolyzes all beta-lactams.', val: 22 },
+    { id: 'blaTEM', label: 'blaTEM Gene', type: NodeType.GENE, description: 'Encodes TEM-type beta-lactamases, primarily conferring resistance to penicillins and early-generation cephalosporins.', val: 20 },
+    { id: 'CTX-M', label: 'CTX-M Gene', type: NodeType.GENE, description: 'Encodes Extended-Spectrum Beta-Lactamases (ESBLs) that hydrolyze oxyimino-cephalosporins (e.g., cefotaxime) and are highly prevalent in Enterobacteriaceae.', val: 22 },
     { id: 'MexAB-OprM', label: 'MexAB-OprM', type: NodeType.GENE, description: 'Multidrug efflux pump system in P. aeruginosa.', val: 20 },
     { id: 'rpoB', label: 'rpoB Gene', type: NodeType.GENE, description: 'Beta subunit of RNA polymerase; mutations linked to rifampicin resistance.', val: 20 },
 
@@ -209,6 +212,9 @@ const AMR_DATA: GraphData = {
     { source: 'MCR-1', target: 'E.coli', label: 'FOUND_IN' },
     { source: 'mecA', target: 'S.aureus', label: 'FOUND_IN' },
     { source: 'KPC', target: 'K.pneumoniae', label: 'FOUND_IN' },
+    { source: 'blaTEM', target: 'E.coli', label: 'FOUND_IN' },
+    { source: 'CTX-M', target: 'E.coli', label: 'FOUND_IN' },
+    { source: 'CTX-M', target: 'K.pneumoniae', label: 'FOUND_IN' },
     { source: 'MexAB-OprM', target: 'P.aeruginosa', label: 'MECHANISM_IN' },
     { source: 'rpoB', target: 'M.tuberculosis', label: 'FOUND_IN' },
 
@@ -219,6 +225,7 @@ const AMR_DATA: GraphData = {
     { source: 'MCR-1', target: 'Colistin', label: 'CONFERS_RESISTANCE' },
     { source: 'mecA', target: 'Methicillin', label: 'CONFERS_RESISTANCE' },
     { source: 'KPC', target: 'Carbapenem', label: 'DEGRADES' },
+    { source: 'CTX-M', target: 'BroadSpectrumResistance', label: 'CONTRIBUTES_TO' },
     { source: 'MexAB-OprM', target: 'Meropenem', label: 'EFFLUXES' },
     { source: 'rpoB', target: 'Rifampicin', label: 'CONFERS_RESISTANCE' },
 
@@ -299,11 +306,14 @@ const QUANTUM_HEALTH_DATA: GraphData = {
     { id: 'DrugDiscovery', label: 'Drug Discovery', type: NodeType.PATHWAY, description: 'Finding new medications.', val: 25 },
     { id: 'ProteinFolding', label: 'Protein Folding', type: NodeType.PATHWAY, description: 'Predicting 3D structure.', val: 25 },
     { id: 'Qubit', label: 'Qubit', type: NodeType.TOOL, description: 'Quantum bit.', val: 20 },
+    { id: 'QuantumCircuitDepth', label: 'Circuit Depth', type: NodeType.TOOL, description: 'The number of sequential operations in a quantum circuit, a key metric for algorithmic complexity and noise tolerance.', val: 22 },
   ],
   links: [
     { source: 'VQE', target: 'DrugDiscovery', label: 'ACCELERATES' },
     { source: 'VQE', target: 'ProteinFolding', label: 'SIMULATES' },
     { source: 'Qubit', target: 'VQE', label: 'ENABLES' },
+    { source: 'VQE', target: 'QuantumCircuitDepth', label: 'HAS_COMPLEXITY' },
+    { source: 'QuantumCircuitDepth', target: 'DrugDiscovery', label: 'CONSTRAINS' },
   ]
 };
 

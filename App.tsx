@@ -21,6 +21,7 @@ const App: React.FC = () => {
   // Modes State
   const [isHypothesisMode, setIsHypothesisMode] = useState(false);
   const [isQuantumMode, setIsQuantumMode] = useState(false);
+  const [quantumLinkDensity, setQuantumLinkDensity] = useState(40); // 0-100
   const [isHubOpen, setIsHubOpen] = useState(false);
   const [isBenchmarkOpen, setIsBenchmarkOpen] = useState(false);
   const [isLoreOpen, setIsLoreOpen] = useState(false);
@@ -78,19 +79,76 @@ const App: React.FC = () => {
     }).slice(0, 5); // Limit results to top 5 to maintain sidebar clarity
   }, [selectedNode, dynamicGraphData.nodes]);
 
+  // BFS Pathfinding Utility
+  const findShortestPath = (startId: string, endId: string) => {
+    const queue: [string, string[], string[]][] = [[startId, [startId], []]];
+    const visited = new Set([startId]);
+    const links = dynamicGraphData.links;
+
+    while (queue.length > 0) {
+      const [currId, pathNodes, pathLinks] = queue.shift()!;
+      if (currId === endId) return { pathNodes, pathLinks };
+
+      for (const link of links) {
+        const s = (link.source as any).id || (link.source as string);
+        const t = (link.target as any).id || (link.target as string);
+        
+        let nextId = null;
+        let linkKey = null;
+
+        if (s === currId) {
+          nextId = t;
+          linkKey = `${s}-${t}`;
+        } else if (t === currId) {
+          nextId = s;
+          linkKey = `${t}-${s}`;
+        }
+
+        if (nextId && !visited.has(nextId)) {
+          visited.add(nextId);
+          queue.push([nextId, [...pathNodes, nextId], [...pathLinks, linkKey]]);
+        }
+      }
+    }
+    return null;
+  };
+
   const handleNodeClick = async (node: GraphNode) => {
     if (isPathfindingMode) {
         if (!pathSource) {
             setPathSource(node);
             setHighlightedNodeIds(new Set([node.id]));
+            setHighlightedLinkPair(new Set());
         } else if (!pathTarget && node.id !== pathSource.id) {
             setPathTarget(node);
-            // Simulating pathfinding
-            setHighlightedNodeIds(new Set([pathSource.id, node.id]));
+            const pathResult = findShortestPath(pathSource.id, node.id);
+            
+            if (pathResult) {
+                setHighlightedNodeIds(new Set(pathResult.pathNodes));
+                setHighlightedLinkPair(new Set(pathResult.pathLinks));
+
+                // Resolve node labels for the path sequence
+                const nodeMap = new Map(dynamicGraphData.nodes.map(n => [n.id, n.label]));
+                const pathLabels = pathResult.pathNodes.map(id => nodeMap.get(id) || id);
+                
+                // Trigger meta-cognitive analysis of the path
+                setIsHypothesisMode(true);
+                handleHypothesisAnalysis(
+                  `Analyze the path discovered between ${pathSource.label} and ${node.label}. 
+                   Sequence: ${pathLabels.join(' -> ')}. 
+                   Discuss the biological significance and multi-intent implications of this specific knowledge trajectory.`
+                );
+            } else {
+                // No path found - highlight just start/end
+                setHighlightedNodeIds(new Set([pathSource.id, node.id]));
+                setHighlightedLinkPair(new Set());
+            }
         } else {
+            // Reset and start new path search
             setPathSource(node);
             setPathTarget(null);
             setHighlightedNodeIds(new Set([node.id]));
+            setHighlightedLinkPair(new Set());
         }
         return;
     }
@@ -129,12 +187,12 @@ const App: React.FC = () => {
         const result = await analyzeEvidence(query, DOMAIN_DATA[currentDomain].nodes, currentDomain);
         if (result) {
             setHypothesisResult(result);
-            const queryNodeId = 'UserQuery';
-            const hypothesisNodeId = 'AIHypothesis';
+            const queryNodeId = `Query-${Date.now()}`;
+            const hypothesisNodeId = `Hypo-${Date.now()}`;
 
             const newNodes: GraphNode[] = [
-                { id: queryNodeId, label: 'Evidence', type: NodeType.QUERY, description: query },
-                { id: hypothesisNodeId, label: 'LORE Hypothesis', type: NodeType.HYPOTHESIS, description: result.hypothesis }
+                { id: queryNodeId, label: 'Path Inquiry', type: NodeType.QUERY, description: query },
+                { id: hypothesisNodeId, label: 'Path Significance', type: NodeType.HYPOTHESIS, description: result.hypothesis }
             ];
 
             const newLinks = [
@@ -143,7 +201,11 @@ const App: React.FC = () => {
             ];
 
             setDynamicGraphData(prev => ({ nodes: [...prev.nodes, ...newNodes], links: [...prev.links, ...newLinks] }));
-            setHighlightedNodeIds(new Set([queryNodeId, hypothesisNodeId, ...result.relevantNodeIds]));
+            
+            // If we're not in pathfinding mode, highlight the new result nodes
+            if (!isPathfindingMode) {
+              setHighlightedNodeIds(new Set([queryNodeId, hypothesisNodeId, ...result.relevantNodeIds]));
+            }
         }
     } catch (e) { console.error(e); } finally { setAnalyzingHypothesis(false); }
   };
@@ -161,6 +223,7 @@ const App: React.FC = () => {
         highlightedLinkPair={highlightedLinkPair}
         selectedNodeId={selectedNode?.id}
         isQuantumMode={isQuantumMode}
+        quantumLinkDensity={quantumLinkDensity}
         layoutMode={layoutMode}
       />
 
@@ -171,6 +234,8 @@ const App: React.FC = () => {
         isHypothesisMode={isHypothesisMode}
         onToggleQuantum={() => setIsQuantumMode(!isQuantumMode)}
         isQuantumMode={isQuantumMode}
+        quantumLinkDensity={quantumLinkDensity}
+        onQuantumLinkDensityChange={setQuantumLinkDensity}
         onToggleHub={() => { setIsHubOpen(!isHubOpen); setIsHypothesisMode(false); }}
         isHubOpen={isHubOpen}
         onToggleBenchmark={() => setIsLoreOpen(!isLoreOpen)}
@@ -180,7 +245,13 @@ const App: React.FC = () => {
         layoutMode={layoutMode}
         onLayoutChange={setLayoutMode}
         isPathfindingMode={isPathfindingMode}
-        onTogglePathfinding={() => { setIsPathfindingMode(!isPathfindingMode); setPathSource(null); setPathTarget(null); setHighlightedNodeIds(new Set()); }}
+        onTogglePathfinding={() => { 
+          setIsPathfindingMode(!isPathfindingMode); 
+          setPathSource(null); 
+          setPathTarget(null); 
+          setHighlightedNodeIds(new Set()); 
+          setHighlightedLinkPair(new Set());
+        }}
       />
 
       {isHypothesisMode && (
