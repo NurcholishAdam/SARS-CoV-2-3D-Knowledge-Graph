@@ -215,11 +215,11 @@ const AMR_DATA: GraphData = {
     { id: 'Methicillin', label: 'Methicillin', type: NodeType.DRUG, description: 'Standard beta-lactam used for MRSA diagnosis.', val: 18 },
 
     // Gene Ontology (GO) Terms for AMR
-    { id: 'GO:0046677', label: 'Response to antibiotic', type: NodeType.GO_TERM, description: 'Any process that results in a change in state or activity of a cell or an organism as a result of an antibiotic stimulus.', val: 12 },
-    { id: 'GO:0030655', label: 'Beta-lactamase activity', type: NodeType.GO_TERM, description: 'Catalysis of the hydrolysis of the beta-lactam ring of a beta-lactam antibiotic.', val: 14 },
-    { id: 'GO:0015238', label: 'Drug transmembrane transport', type: NodeType.GO_TERM, description: 'The directed movement of a drug into, out of or within a cell, or between cells, by means of some agent such as a transporter or pore.', val: 12 },
+    { id: 'GO:0046677', label: 'Response to antibiotic', type: NodeType.GO_TERM, description: 'Biological process where a cell changes activity due to an antibiotic.', val: 12 },
+    { id: 'GO:0030655', label: 'Beta-lactamase activity', type: NodeType.GO_TERM, description: 'Catalysis of the hydrolysis of the beta-lactam ring.', val: 14 },
+    { id: 'GO:0015238', label: 'Drug transmembrane transport', type: NodeType.GO_TERM, description: 'Movement of a drug across a cell membrane, often via efflux.', val: 12 },
     { id: 'GO:0009297', label: 'Pilus-mediated HGT', type: NodeType.GO_TERM, description: 'Pilus-mediated horizontal gene transfer (conjugation).', val: 12 },
-    { id: 'GO:0009405', label: 'Pathogenesis', type: NodeType.GO_TERM, description: 'The process by which a microbial entity causes disease in a host.', val: 12 },
+    { id: 'GO:0009405', label: 'Pathogenesis', type: NodeType.GO_TERM, description: 'The process by which a microbial entity causes disease.', val: 12 },
 
     // Surveillance & Locations
     { id: 'Surveillance:Glass', label: 'WHO GLASS', type: NodeType.SURVEILLANCE, description: 'Global Antimicrobial Resistance Surveillance System.', val: 18 },
@@ -252,16 +252,20 @@ const AMR_DATA: GraphData = {
     { source: 'Surveillance:Glass', target: 'Loc:SouthAsia', label: 'REPORTS_FROM' },
     { source: 'Surveillance:Glass', target: 'Loc:SEAsia', label: 'REPORTS_FROM' },
 
-    // GO Term Links for AMR
+    // GO Term Links for AMR - Functional Context
     { source: 'NDM-1', target: 'GO:0030655', label: 'ANNOTATED_WITH' },
     { source: 'KPC', target: 'GO:0030655', label: 'ANNOTATED_WITH' },
     { source: 'NDM-1', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
     { source: 'MCR-1', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
     { source: 'mecA', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
+    { source: 'vanA', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
     { source: 'tetM', target: 'GO:0015238', label: 'ANNOTATED_WITH' },
+    { source: 'tetM', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
     { source: 'Path:HGT', target: 'GO:0009297', label: 'ENABLED_BY' },
     { source: 'K.pneumoniae', target: 'GO:0009405', label: 'EXHIBITS' },
     { source: 'S.aureus', target: 'GO:0009405', label: 'EXHIBITS' },
+    { source: 'N.gonorrhoeae', target: 'GO:0009405', label: 'EXHIBITS' },
+    { source: 'E.faecium', target: 'GO:0009405', label: 'EXHIBITS' },
   ]
 };
 
@@ -335,7 +339,7 @@ const QUANTUM_HEALTH_DATA: GraphData = {
     { id: 'DrugDiscovery', label: 'Drug Discovery', type: NodeType.PATHWAY, description: 'Finding new medications.', val: 25 },
     { id: 'ProteinFolding', label: 'Protein Folding', type: NodeType.PATHWAY, description: 'Predicting 3D structure.', val: 25 },
     { id: 'Qubit', label: 'Qubit', type: NodeType.TOOL, description: 'Quantum bit.', val: 20 },
-    { id: 'QuantumCircuitDepth', label: 'Circuit Depth', type: NodeType.TOOL, description: 'The number of sequential operations in a quantum circuit, a key metric for algorithmic complexity and noise tolerance.', val: 22 },
+    { id: 'QuantumCircuitDepth', label: 'Circuit Depth', type: NodeType.TOOL, description: 'Algorithmic complexity metric.', val: 22 },
   ],
   links: [
     { source: 'VQE', target: 'DrugDiscovery', label: 'ACCELERATES' },
