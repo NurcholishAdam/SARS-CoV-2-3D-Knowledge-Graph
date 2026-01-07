@@ -59,7 +59,7 @@ export const NODE_COLORS = {
 
 const SARS_DATA: GraphData = {
   nodes: [
-    // --- Structural Proteins (Added PDB IDs) ---
+    // --- Structural Proteins ---
     { id: 'S', label: 'Spike (S)', type: NodeType.VIRUS_PROTEIN, description: 'Trimeric surface glycoprotein mediating entry.', val: 30, metadata: { pdbId: '6VXX' } },
     { id: 'N', label: 'Nucleocapsid (N)', type: NodeType.VIRAL_CAPSID, description: 'Encapsulates genome, highly immunogenic, critical for packaging.', val: 22, metadata: { pdbId: '6VYO' } },
     { id: 'M', label: 'Membrane (M)', type: NodeType.VIRAL_MATRIX, description: 'Most abundant structural protein, defines viral shape.', val: 20 },
@@ -90,11 +90,11 @@ const SARS_DATA: GraphData = {
     { id: 'SevereDisease', label: 'Severe Disease', type: NodeType.PHENOTYPE, description: 'Hospitalization, hypoxia, organ failure.', val: 20 },
     { id: 'LongCovid', label: 'Long COVID', type: NodeType.PHENOTYPE, description: 'Post-acute sequelae of SARS-CoV-2 infection.', val: 22 },
 
-    // --- NEW: Comorbidities & Coinfections ---
+    // --- Comorbidities & Coinfections ---
     { id: 'Diabetes', label: 'T2 Diabetes', type: NodeType.COMORBIDITY, description: 'Metabolic disorder increasing severity risk.', val: 20 },
     { id: 'Influenza', label: 'Influenza A', type: NodeType.COINFECTION, description: 'Common respiratory coinfection.', val: 20 },
     
-    // --- NEW: Socioeconomic & Environmental ---
+    // --- Socioeconomic & Environmental ---
     { id: 'HealthcareAccess', label: 'Healthcare Access', type: NodeType.SOCIO_ECONOMIC, description: 'Availability of ICU beds and therapeutics.', val: 18 },
     { id: 'AirQuality', label: 'PM2.5 Levels', type: NodeType.ENVIRONMENTAL, description: 'Air pollution correlating with transmission/severity.', val: 18 },
 
@@ -103,45 +103,59 @@ const SARS_DATA: GraphData = {
     { id: 'Func:Replication', label: 'Replication Complex', type: NodeType.FUNC_REPLICATION, description: 'RNA synthesis machinery.', val: 15 },
     { id: 'Func:ImmuneMod', label: 'Immune Modulation', type: NodeType.FUNC_IMMUNE_MOD, description: 'Interference with host interferon response.', val: 15 },
 
+    // --- Gene Ontology (GO) Terms ---
+    { id: 'GO:0046718', label: 'Viral entry into host cell', type: NodeType.GO_TERM, description: 'Biological process where a virus crosses the host cell membrane.', val: 12 },
+    { id: 'GO:0019012', label: 'Virion assembly', type: NodeType.GO_TERM, description: 'The processes by which virus particles are formed.', val: 12 },
+    { id: 'GO:0039654', label: 'RdRp activity', type: NodeType.GO_TERM, description: 'RNA-directed RNA polymerase activity (GO:0039654).', val: 12 },
+    { id: 'GO:0030683', label: 'Evasion of immune response', type: NodeType.GO_TERM, description: 'Processes where a virus avoids host immune detection.', val: 12 },
+    { id: 'GO:0003723', label: 'RNA binding', type: NodeType.GO_TERM, description: 'Interaction with an RNA molecule.', val: 12 },
+
     // --- Literature ---
     { id: 'Paper:Hoffmann', label: 'Hoffmann et al.', type: NodeType.LITERATURE, description: 'Identified ACE2 entry.', val: 10, metadata: { authors: 'Hoffmann et al.', year: '2020', journal: 'Cell', doi: '10.1016/j.cell.2020.02.052' } },
   ],
   links: [
-    // Structural Links
     { source: 'S', target: 'Func:Entry', label: 'MEDIATES' },
     { source: 'S', target: 'ACE2', label: 'BINDS' },
     { source: 'S', target: 'TMPRSS2', label: 'CLEAVED_BY' },
     { source: 'N', target: 'Func:Replication', label: 'STABILIZES_RNA' },
     { source: 'E', target: 'Func:Entry', label: 'ASSISTS_ASSEMBLY' },
-
-    // NSP Function Links
     { source: 'NSP1', target: 'Func:ImmuneMod', label: 'INHIBITS_INTERFERON' },
     { source: 'NSP3', target: 'Func:ImmuneMod', label: 'DEUBIQUITINATES' },
     { source: 'NSP5', target: 'Func:Replication', label: 'PROCESSES_POLYPROTEIN' },
     { source: 'NSP12', target: 'Func:Replication', label: 'DRIVES_SYNTHESIS' },
     { source: 'NSP13', target: 'Func:Replication', label: 'UNWINDS_RNA' },
-
-    // Accessory Links
     { source: 'ORF8', target: 'Func:ImmuneMod', label: 'DOWNREGULATES_MHC_I' },
     { source: 'ORF8', target: 'ImmuneEscape', label: 'CONTRIBUTES_TO' },
     { source: 'ORF8', target: 'SevereDisease', label: 'CORRELATES_WITH' },
     { source: 'ORF3a', target: 'SevereDisease', label: 'INDUCES_INFLAMMATION' },
-
-    // Drug Interactions
     { source: 'Paxlovid', target: 'NSP5', label: 'INHIBITS' },
     { source: 'Remdesivir', target: 'NSP12', label: 'INHIBITS' },
     { source: 'Molnupiravir', target: 'NSP12', label: 'MUTATES_VIA' },
-
-    // Literature
     { source: 'Paper:Hoffmann', target: 'ACE2', label: 'IDENTIFIES' },
-    
-    // NEW: Comprehensive Nuance Links
     { source: 'Diabetes', target: 'SevereDisease', label: 'EXACERBATES' },
     { source: 'Diabetes', target: 'ACE2', label: 'UPREGULATES' },
     { source: 'Influenza', target: 'SevereDisease', label: 'INCREASES_MORTALITY' },
     { source: 'AirQuality', target: 'SevereDisease', label: 'CORRELATES_WITH' },
     { source: 'HealthcareAccess', target: 'SevereDisease', label: 'MITIGATES' },
     { source: 'LongCovid', target: 'SevereDisease', label: 'SEQUELAE_OF' },
+
+    // --- GO Term Links ---
+    { source: 'S', target: 'GO:0046718', label: 'ANNOTATED_WITH' },
+    { source: 'GO:0046718', target: 'Func:Entry', label: 'DEFINES' },
+    
+    { source: 'S', target: 'GO:0019012', label: 'ANNOTATED_WITH' },
+    { source: 'M', target: 'GO:0019012', label: 'ANNOTATED_WITH' },
+    { source: 'E', target: 'GO:0019012', label: 'ANNOTATED_WITH' },
+    { source: 'N', target: 'GO:0019012', label: 'ANNOTATED_WITH' },
+    
+    { source: 'NSP12', target: 'GO:0039654', label: 'HAS_ACTIVITY' },
+    { source: 'GO:0039654', target: 'Func:Replication', label: 'DEFINES' },
+    
+    { source: 'NSP1', target: 'GO:0030683', label: 'ANNOTATED_WITH' },
+    { source: 'ORF8', target: 'GO:0030683', label: 'ANNOTATED_WITH' },
+    { source: 'GO:0030683', target: 'Func:ImmuneMod', label: 'DEFINES' },
+    
+    { source: 'N', target: 'GO:0003723', label: 'ANNOTATED_WITH' },
   ]
 };
 
@@ -153,7 +167,6 @@ const ONCOLOGY_DATA: GraphData = {
         { id: 'Sotorasib', label: 'Sotorasib', type: NodeType.DRUG, description: 'Inhibitor of KRAS G12C.', val: 22 },
         { id: 'Osimertinib', label: 'Osimertinib', type: NodeType.DRUG, description: '3rd gen EGFR TKI.', val: 22 },
         { id: 'LungCancer', label: 'NSCLC', type: NodeType.PHENOTYPE, description: 'Non-Small Cell Lung Cancer.', val: 30 },
-        // Fixed typo: CLININAL_TRIAL -> CLINICAL_TRIAL
         { id: 'Trial:CodeBreaK', label: 'CodeBreaK 100', type: NodeType.CLINICAL_TRIAL, description: 'Phase 2 trial of Sotorasib.', val: 18, metadata: { year: '2021', journal: 'NEJM' } },
         { id: 'Cohort:Smokers', label: 'Smoker Cohort', type: NodeType.PATIENT_COHORT, description: 'Patients with history of smoking.', val: 15 },
     ],
@@ -171,71 +184,84 @@ const ONCOLOGY_DATA: GraphData = {
 
 const AMR_DATA: GraphData = {
   nodes: [
-    // Existing Genes & Bacteria
-    { id: 'NDM-1', label: 'NDM-1', type: NodeType.GENE, description: 'New Delhi metallo-beta-lactamase 1, conferring broad carbapenem resistance.', val: 25 },
-    { id: 'MCR-1', label: 'MCR-1', type: NodeType.GENE, description: 'Plasmid-mediated colistin resistance mechanism.', val: 25 },
-    { id: 'mecA', label: 'mecA Gene', type: NodeType.GENE, description: 'Encodes PBP2a, conferring resistance to methicillin and other beta-lactams.', val: 22 },
-    { id: 'KPC', label: 'KPC enzyme', type: NodeType.GENE, description: 'Klebsiella pneumoniae carbapenemase; hydrolyzes all beta-lactams.', val: 22 },
-    { id: 'blaTEM', label: 'blaTEM Gene', type: NodeType.GENE, description: 'Encodes TEM-type beta-lactamases, primarily conferring resistance to penicillins and early-generation cephalosporins.', val: 20 },
-    { id: 'CTX-M', label: 'CTX-M Gene', type: NodeType.GENE, description: 'Encodes Extended-Spectrum Beta-Lactamases (ESBLs) that hydrolyze oxyimino-cephalosporins (e.g., cefotaxime) and are highly prevalent in Enterobacteriaceae.', val: 22 },
-    { id: 'MexAB-OprM', label: 'MexAB-OprM', type: NodeType.GENE, description: 'Multidrug efflux pump system in P. aeruginosa.', val: 20 },
-    { id: 'rpoB', label: 'rpoB Gene', type: NodeType.GENE, description: 'Beta subunit of RNA polymerase; mutations linked to rifampicin resistance.', val: 20 },
+    // Mechanisms & Genes
+    { id: 'NDM-1', label: 'NDM-1 Gene', type: NodeType.GENE, description: 'New Delhi metallo-beta-lactamase 1; confers broad carbapenem resistance.', val: 25 },
+    { id: 'MCR-1', label: 'MCR-1 Gene', type: NodeType.GENE, description: 'Plasmid-mediated colistin resistance; typically zoonotic origin.', val: 25 },
+    { id: 'mecA', label: 'mecA Gene', type: NodeType.GENE, description: 'Encodes PBP2a, conferring resistance to methicillin.', val: 22 },
+    { id: 'KPC', label: 'KPC Enzyme', type: NodeType.GENE, description: 'Klebsiella pneumoniae carbapenemase; hydrolyzes beta-lactams.', val: 22 },
+    { id: 'vanA', label: 'vanA Cluster', type: NodeType.GENE, description: 'Gene complex conferring high-level vancomycin resistance.', val: 23 },
+    { id: 'tetM', label: 'tetM Gene', type: NodeType.GENE, description: 'Efflux-mediated tetracycline resistance mechanism.', val: 20 },
+    { id: 'ermB', label: 'ermB Gene', type: NodeType.GENE, description: 'Ribosomal methylase conferring macrolide resistance.', val: 20 },
 
-    // Strains
-    { id: 'K.pneumoniae', label: 'K. pneumoniae', type: NodeType.BACTERIA, description: 'Klebsiella pneumoniae; common hospital-acquired pathogen.', val: 22 },
-    { id: 'E.coli', label: 'E. coli', type: NodeType.BACTERIA, description: 'Escherichia coli; significant driver of community AMR.', val: 20 },
-    { id: 'P.aeruginosa', label: 'P. aeruginosa', type: NodeType.BACTERIA, description: 'Pseudomonas aeruginosa; opportunistic, highly resistant pathogen.', val: 22 },
-    { id: 'A.baumannii', label: 'A. baumannii', type: NodeType.BACTERIA, description: 'Acinetobacter baumannii; problematic in ICU settings.', val: 22 },
+    // Bacterial Strains (ESKAPE + Emerging)
+    { id: 'K.pneumoniae', label: 'K. pneumoniae', type: NodeType.BACTERIA, description: 'Klebsiella pneumoniae; hypervirulent resistant strain.', val: 22 },
+    { id: 'E.coli', label: 'E. coli (ST131)', type: NodeType.BACTERIA, description: 'Extraintestinal pathogenic E. coli with multidrug resistance.', val: 20 },
+    { id: 'P.aeruginosa', label: 'P. aeruginosa', type: NodeType.BACTERIA, description: 'Opportunistic pathogen; highly adaptable efflux systems.', val: 22 },
+    { id: 'A.baumannii', label: 'A. baumannii', type: NodeType.BACTERIA, description: 'Carbapenem-resistant Acinetobacter (CRAB).', val: 22 },
     { id: 'S.aureus', label: 'S. aureus (MRSA)', type: NodeType.BACTERIA, description: 'Methicillin-resistant Staphylococcus aureus.', val: 24 },
-    { id: 'M.tuberculosis', label: 'M. tuberculosis', type: NodeType.BACTERIA, description: 'Mycobacterium tuberculosis; agent of TB, multi-drug resistant strains emerging.', val: 26 },
+    { id: 'E.faecium', label: 'E. faecium (VRE)', type: NodeType.BACTERIA, description: 'Vancomycin-resistant Enterococcus; common in clinical settings.', val: 22 },
+    { id: 'N.gonorrhoeae', label: 'N. gonorrhoeae', type: NodeType.BACTERIA, description: 'Extensively drug-resistant (XDR) superbug strain.', val: 24 },
+    { id: 'M.tuberculosis', label: 'M. tuberculosis', type: NodeType.BACTERIA, description: 'Multidrug-resistant TB (MDR-TB) agent.', val: 26 },
+
+    // Transmission Pathways
+    { id: 'Path:HGT', label: 'Horizontal Gene Transfer', type: NodeType.PATHWAY, description: 'Conjugation-mediated plasmid exchange between bacteria.', val: 20 },
+    { id: 'Path:Zoonotic', label: 'Zoonotic Pathway', type: NodeType.PATHWAY, description: 'Transmission from livestock/agriculture to humans.', val: 18 },
+    { id: 'Path:Healthcare', label: 'Healthcare-Associated', type: NodeType.PATHWAY, description: 'Transmission within ICU and clinical environments.', val: 18 },
 
     // Drugs
-    { id: 'Carbapenem', label: 'Carbapenem', type: NodeType.DRUG, description: 'Potent broad-spectrum beta-lactam antibiotic.', val: 20 },
-    { id: 'Colistin', label: 'Colistin', type: NodeType.DRUG, description: 'Polymyxin antibiotic used as a last resort.', val: 20 },
-    { id: 'Methicillin', label: 'Methicillin', type: NodeType.DRUG, description: 'Beta-lactam antibiotic used to treat S. aureus.', val: 18 },
-    { id: 'Meropenem', label: 'Meropenem', type: NodeType.DRUG, description: 'Type of Carbapenem antibiotic.', val: 18 },
-    { id: 'Rifampicin', label: 'Rifampicin', type: NodeType.DRUG, description: 'Key first-line anti-tuberculosis drug.', val: 20 },
+    { id: 'Carbapenem', label: 'Carbapenem', type: NodeType.DRUG, description: 'Last-resort beta-lactam antibiotic.', val: 20 },
+    { id: 'Colistin', label: 'Colistin', type: NodeType.DRUG, description: 'Polymyxin E; critical last-line therapeutic.', val: 20 },
+    { id: 'Vancomycin', label: 'Vancomycin', type: NodeType.DRUG, description: 'Glycopeptide for Gram-positive infections.', val: 20 },
+    { id: 'Methicillin', label: 'Methicillin', type: NodeType.DRUG, description: 'Standard beta-lactam used for MRSA diagnosis.', val: 18 },
 
-    // Phenotypes
-    { id: 'BroadSpectrumResistance', label: 'Broad Spectrum Resistance', type: NodeType.PHENOTYPE, description: 'Resistance to a wide range of antibiotics, commonly associated with metallo-beta-lactamase (MBL) activity. This phenotype poses a critical challenge to last-resort antibiotics like carbapenems.', val: 20 },
+    // Gene Ontology (GO) Terms for AMR
+    { id: 'GO:0046677', label: 'Response to antibiotic', type: NodeType.GO_TERM, description: 'Any process that results in a change in state or activity of a cell or an organism as a result of an antibiotic stimulus.', val: 12 },
+    { id: 'GO:0030655', label: 'Beta-lactamase activity', type: NodeType.GO_TERM, description: 'Catalysis of the hydrolysis of the beta-lactam ring of a beta-lactam antibiotic.', val: 14 },
+    { id: 'GO:0015238', label: 'Drug transmembrane transport', type: NodeType.GO_TERM, description: 'The directed movement of a drug into, out of or within a cell, or between cells, by means of some agent such as a transporter or pore.', val: 12 },
+    { id: 'GO:0009297', label: 'Pilus-mediated HGT', type: NodeType.GO_TERM, description: 'Pilus-mediated horizontal gene transfer (conjugation).', val: 12 },
+    { id: 'GO:0009405', label: 'Pathogenesis', type: NodeType.GO_TERM, description: 'The process by which a microbial entity causes disease in a host.', val: 12 },
 
     // Surveillance & Locations
-    { id: 'Surveillance:Glass', label: 'GLASS (WHO)', type: NodeType.SURVEILLANCE, description: 'Global Antimicrobial Resistance and Use Surveillance System.', val: 18 },
-    { id: 'Loc:SouthAsia', label: 'South Asia', type: NodeType.LOCATION, description: 'Region with high NDM-1 prevalence.', val: 15 },
-    { id: 'Loc:SubSaharanAfrica', label: 'Sub-Saharan Africa', type: NodeType.LOCATION, description: 'High burden region for TB and enteric AMR.', val: 15 },
-    { id: 'Loc:NorthAmerica', label: 'North America', type: NodeType.LOCATION, description: 'Active monitoring for emerging resistance mechanisms.', val: 15 },
+    { id: 'Surveillance:Glass', label: 'WHO GLASS', type: NodeType.SURVEILLANCE, description: 'Global Antimicrobial Resistance Surveillance System.', val: 18 },
+    { id: 'Loc:SouthAsia', label: 'South Asia', type: NodeType.LOCATION, description: 'High prevalence region for NDM-1 and MCR-1.', val: 15 },
+    { id: 'Loc:SEAsia', label: 'Southeast Asia', type: NodeType.LOCATION, description: 'Emerging hotspot for XDR Gonorrhea.', val: 15 },
+    { id: 'Loc:Europe', label: 'Europe (EARS-Net)', type: NodeType.LOCATION, description: 'Intensive monitoring of KPC and VRE.', val: 15 },
+    { id: 'Loc:NorthAmerica', label: 'North America', type: NodeType.LOCATION, description: 'Active monitoring for emerging MCR-1 cases.', val: 15 },
   ],
   links: [
-    // Gene-Bacteria Findings
     { source: 'NDM-1', target: 'K.pneumoniae', label: 'FOUND_IN' },
-    { source: 'NDM-1', target: 'E.coli', label: 'FOUND_IN' },
+    { source: 'KPC', target: 'K.pneumoniae', label: 'FOUND_IN' },
     { source: 'MCR-1', target: 'E.coli', label: 'FOUND_IN' },
     { source: 'mecA', target: 'S.aureus', label: 'FOUND_IN' },
-    { source: 'KPC', target: 'K.pneumoniae', label: 'FOUND_IN' },
-    { source: 'blaTEM', target: 'E.coli', label: 'FOUND_IN' },
-    { source: 'CTX-M', target: 'E.coli', label: 'FOUND_IN' },
-    { source: 'CTX-M', target: 'K.pneumoniae', label: 'FOUND_IN' },
-    { source: 'MexAB-OprM', target: 'P.aeruginosa', label: 'MECHANISM_IN' },
-    { source: 'rpoB', target: 'M.tuberculosis', label: 'FOUND_IN' },
-
-    // Resistance Mechanisms
+    { source: 'vanA', target: 'E.faecium', label: 'FOUND_IN' },
+    { source: 'tetM', target: 'N.gonorrhoeae', label: 'FOUND_IN' },
+    { source: 'ermB', target: 'N.gonorrhoeae', label: 'FOUND_IN' },
     { source: 'NDM-1', target: 'Carbapenem', label: 'CONFERS_RESISTANCE' },
-    { source: 'NDM-1', target: 'Meropenem', label: 'CONFERS_RESISTANCE' },
-    { source: 'NDM-1', target: 'BroadSpectrumResistance', label: 'CONFERS' },
+    { source: 'KPC', target: 'Carbapenem', label: 'INACTIVATES' },
     { source: 'MCR-1', target: 'Colistin', label: 'CONFERS_RESISTANCE' },
+    { source: 'vanA', target: 'Vancomycin', label: 'CONFERS_RESISTANCE' },
     { source: 'mecA', target: 'Methicillin', label: 'CONFERS_RESISTANCE' },
-    { source: 'KPC', target: 'Carbapenem', label: 'DEGRADES' },
-    { source: 'CTX-M', target: 'BroadSpectrumResistance', label: 'CONTRIBUTES_TO' },
-    { source: 'MexAB-OprM', target: 'Meropenem', label: 'EFFLUXES' },
-    { source: 'rpoB', target: 'Rifampicin', label: 'CONFERS_RESISTANCE' },
+    { source: 'Path:HGT', target: 'NDM-1', label: 'PROPAGATES' },
+    { source: 'Path:HGT', target: 'MCR-1', label: 'PROPAGATES' },
+    { source: 'Path:Zoonotic', target: 'MCR-1', label: 'ORIGIN_OF' },
+    { source: 'Path:Healthcare', target: 'E.faecium', label: 'PREVALENT_IN' },
+    { source: 'Path:Healthcare', target: 'K.pneumoniae', label: 'PREVALENT_IN' },
+    { source: 'Loc:SouthAsia', target: 'NDM-1', label: 'ENDEMIC_AREA' },
+    { source: 'Loc:SEAsia', target: 'N.gonorrhoeae', label: 'HIGH_PREVALENCE' },
+    { source: 'Loc:Europe', target: 'E.faecium', label: 'MONITORED_IN' },
+    { source: 'Surveillance:Glass', target: 'Loc:SouthAsia', label: 'REPORTS_FROM' },
+    { source: 'Surveillance:Glass', target: 'Loc:SEAsia', label: 'REPORTS_FROM' },
 
-    // Global Transmission & Prevalence
-    { source: 'NDM-1', target: 'Loc:SouthAsia', label: 'ORIGINATED_IN' },
-    { source: 'K.pneumoniae', target: 'Loc:SouthAsia', label: 'PREVALENT_IN' },
-    { source: 'M.tuberculosis', target: 'Loc:SubSaharanAfrica', label: 'HIGH_BURDEN_IN' },
-    { source: 'A.baumannii', target: 'Loc:NorthAmerica', label: 'MONITORED_IN' },
-    { source: 'Surveillance:Glass', target: 'Loc:SouthAsia', label: 'COLLECTS_DATA' },
-    { source: 'Surveillance:Glass', target: 'K.pneumoniae', label: 'MONITORS' },
+    // GO Term Links for AMR
+    { source: 'NDM-1', target: 'GO:0030655', label: 'ANNOTATED_WITH' },
+    { source: 'KPC', target: 'GO:0030655', label: 'ANNOTATED_WITH' },
+    { source: 'NDM-1', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
+    { source: 'MCR-1', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
+    { source: 'mecA', target: 'GO:0046677', label: 'PARTICIPATES_IN' },
+    { source: 'tetM', target: 'GO:0015238', label: 'ANNOTATED_WITH' },
+    { source: 'Path:HGT', target: 'GO:0009297', label: 'ENABLED_BY' },
+    { source: 'K.pneumoniae', target: 'GO:0009405', label: 'EXHIBITS' },
+    { source: 'S.aureus', target: 'GO:0009405', label: 'EXHIBITS' },
   ]
 };
 
@@ -292,11 +318,14 @@ const POLICY_DATA: GraphData = {
     { id: 'PandemicTreaty', label: 'Pandemic Treaty', type: NodeType.POLICY, description: 'International agreement on pandemic prevention.', val: 25 },
     { id: 'VaccineEquity', label: 'Vaccine Equity', type: NodeType.ETHICS, description: 'Fair distribution of vaccines.', val: 25 },
     { id: 'IHR', label: 'IHR (2005)', type: NodeType.POLICY, description: 'International Health Regulations.', val: 22 },
+    { id: 'AIAgents', label: 'AI Agents', type: NodeType.ACTOR, description: 'Autonomous systems participating in policy-making and scientific discovery.', val: 24 },
+    { id: 'MetaAlignment', label: 'Meta-Cognitive Alignment', type: NodeType.ETHICS, description: 'Reflective oversight of AI systems to ensure adherence to human values and first principles.', val: 26 },
   ],
   links: [
     { source: 'WHO', target: 'PandemicTreaty', label: 'DRAFTS' },
     { source: 'PandemicTreaty', target: 'VaccineEquity', label: 'PROMOTES' },
     { source: 'WHO', target: 'IHR', label: 'ADMINISTERS' },
+    { source: 'MetaAlignment', target: 'AIAgents', label: 'GOVERNANCE_CHECKS' },
   ]
 };
 

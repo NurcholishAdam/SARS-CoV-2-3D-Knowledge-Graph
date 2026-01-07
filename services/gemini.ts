@@ -19,81 +19,81 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
   const nodeContext = availableNodes.map(n => `${n.id} (${n.label}, ${n.type})`).join("\n");
 
   try {
+    // STAGE 1: Search Grounding (Verification Pass)
     const verificationResponse = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Perform cross-domain verification for query: "${query}". Analyze established facts and multi-intent signals. Detect graph depth required for the prompt logic.`,
+      contents: `Verify the following scientific claim/query for factuality and retrieve current literature: "${query}". Identify key biological entities and mechanisms.`,
       config: { tools: [{ googleSearch: {} }] }
     });
     
     const facts = verificationResponse.text;
     const sources = extractSources(verificationResponse);
 
-    const prompt = `
-      You are the LORE-UR Unified Reasoning Architect.
+    // STAGE 2: URM Hybrid Reasoning (Thinking Pass)
+    const hybridPrompt = `
+      You are the URM (Universal Reasoning Model) Hybrid Architect.
       
       Verified Context: ${facts}
-      User Query: "${query}"
+      User Inquiry: "${query}"
       Active Domain: ${domain}
-      Available Node Context: ${nodeContext}
+      Local Graph Context (Nodes): 
+      ${nodeContext}
 
-      TASK: Bridge Universal Reasoning (Conceptual First Principles) with Laws of Reasoning (Technical Accuracy Audits).
+      GOAL: Implement a Hybrid Synthesis between Local Graph Data and Global Scientific Knowledge.
+      
+      CORE PRINCIPLES (URM Hybrid):
+      1. Compositionality: How do parts (proteins/genes) form a functional whole?
+      2. Monotonicity: Does adding new evidence increase or decrease certainty logically?
+      3. Cross-Domain Transfer: Can an insight from synthetic biology solve a SARS-CoV-2 mechanism?
 
-      RETURN RAW JSON ONLY:
+      OUTPUT FORMAT: STRICT JSON
       {
         "architectureBridge": {
-          "coreSynthesis": "Explain how Universal First Principles were audited by LORE laws in this specific inference.",
-          "lawAlignment": "Which LORE law (Monotonicity/Compositionality) was most critical for this query?",
-          "universalImpact": "How does this logic scale across different scientific domains?"
+          "coreSynthesis": "Abstract summary of the reasoning path.",
+          "lawAlignment": "LORE law utilized (e.g., Compositionality).",
+          "universalImpact": "Potential impact outside this domain.",
+          "urmHybridLogic": "How local graph nodes were combined with global search data."
         },
         "universalReasoning": {
-          "firstPrinciples": ["string"],
-          "crossDomainSynergy": [{"domain": "string", "insight": "string"}],
-          "abstractLogicMapping": "string",
-          "certaintyScore": number
+          "firstPrinciples": ["Point 1", "Point 2"],
+          "crossDomainSynergy": [{"domain": "Neuro", "insight": "Parallel mechanism in protein misfolding"}],
+          "abstractLogicMapping": "Conceptual graph description.",
+          "certaintyScore": 0.0-1.0
         },
         "lore": {
-          "complexity": {
-            "graphDepth": number,
-            "entropy": number,
-            "quantumCircuitDepth": number,
-            "tokenCount": number
-          },
-          "laws": {
-            "computeMonotonicity": boolean,
-            "compositionalityScore": number,
-            "accuracyDecay": number
-          },
-          "compliance": {
-            "nMAD": number, 
-            "spearman": number,
-            "status": "High" | "Partial" | "Fail"
-          }
+          "complexity": { "graphDepth": 5, "entropy": 0.8, "quantumCircuitDepth": 12, "tokenCount": 1500 },
+          "laws": { "computeMonotonicity": true, "compositionalityScore": 0.9, "accuracyDecay": 0.05 },
+          "compliance": { "nMAD": 0.02, "spearman": 0.95, "status": "High" }
         },
         "reasoning": {
-          "intentsDetected": ["string"],
-          "steps": ["string"],
-          "biasCheck": "Analyze epistemic biases. For AMR, explicitly address self-reported data and phenotypic-genotypic gaps.",
-          "confidenceScore": number,
+          "intentsDetected": ["intent1", "intent2"],
+          "steps": ["Reasoning Step 1", "Reasoning Step 2"],
+          "biasCheck": "Analysis of genotypic vs phenotypic data gaps (specifically for AMR/Pathology).",
+          "confidenceScore": 0.95,
           "quantumStages": {
-            "superposition": "string", "entanglement": "string", "interference": "string", "collapse": "string", "decoherence": "string"
+            "superposition": "Multiple competing hypotheses currently held in memory.",
+            "entanglement": "Links between different scientific domains identified.",
+            "interference": "How conflicting evidence was resolved.",
+            "collapse": "The final definitive hypothesis chosen.",
+            "decoherence": "Uncertainties or noise remaining in the prediction."
           }
         },
-        "hypothesis": "string",
-        "synthesis": "Markdown formatted summary.",
-        "relevantNodeIds": ["string"],
-        "serendipityTraces": ["string"]
+        "hypothesis": "The core novel prediction.",
+        "synthesis": "Detailed Markdown explanation.",
+        "relevantNodeIds": ["id1", "id2"],
+        "serendipityTraces": ["Unexpected connection found between X and Y"]
       }
     `;
 
-    const response = await ai.models.generateContent({
+    const hybridResponse = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
-      contents: prompt,
+      contents: hybridPrompt,
       config: {
         thinkingConfig: { thinkingBudget: 32768 }
       }
     });
 
-    const text = response.text || "{}";
+    const text = hybridResponse.text || "{}";
     const cleanText = text.replace(/```json|```/g, '').trim();
     const result = JSON.parse(cleanText);
     result.sources = sources;
@@ -101,14 +101,15 @@ export const analyzeEvidence = async (query: string, availableNodes: GraphNode[]
     return result as HypothesisResult;
 
   } catch (error) {
-    console.error("LORE-UR Architecture Error:", error);
+    console.error("URM Hybrid Engine Error:", error);
     return null;
   }
 };
 
 export const validateProposal = async (proposal: { label: string; description: string; type: string }, domain: GraphDomain) => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const prompt = `Validate proposal for ${domain}: "${proposal.label}". Return JSON {approved: boolean, critique: string, provenanceScore: number, refinedNode: {label: string, description: string}}`;
+    const prompt = `Validate the following addition to the ${domain} knowledge graph: "${proposal.label}".
+    Critique based on current literature. Return JSON {approved: boolean, critique: string, provenanceScore: number, refinedNode: {label: string, description: string}}`;
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview", 
         contents: prompt,
@@ -122,7 +123,7 @@ export const validateProposal = async (proposal: { label: string; description: s
 
 export const enrichNodeWithGemini = async (node: GraphNode, domain: GraphDomain) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `Enrich entity "${node.label}" in ${domain} context. Return Markdown.`;
+  const prompt = `Enrich the entity "${node.label}" within the ${domain} context. Provide clinical, molecular, and surveillance details. Use Markdown.`;
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,

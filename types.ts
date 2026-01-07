@@ -64,7 +64,7 @@ export interface LoreMetrics {
     accuracyDecay: number;
   };
   compliance: {
-    nMAD: number;
+    nMAD: number; 
     spearman: number;
     status: 'High' | 'Partial' | 'Fail';
   };
@@ -78,6 +78,7 @@ export interface HypothesisResult {
     coreSynthesis: string;
     lawAlignment: string;
     universalImpact: string;
+    urmHybridLogic: string; // Specific to URM Hybrid repo
   };
   universalReasoning: {
     firstPrinciples: string[];
@@ -91,7 +92,7 @@ export interface HypothesisResult {
     steps: string[];
     biasCheck: string;
     confidenceScore: number;
-    quantumStages?: {
+    quantumStages: {
         superposition: string;
         entanglement: string;
         interference: string;

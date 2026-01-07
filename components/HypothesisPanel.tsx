@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Sparkles, X, BrainCircuit, ArrowRight, Activity, Globe, Zap, Scale, Network, ShieldCheck, Binary, Cpu, Workflow } from 'lucide-react';
+import { Send, Sparkles, X, BrainCircuit, ArrowRight, Activity, Globe, Zap, Scale, Network, ShieldCheck, Binary, Cpu, Workflow, Layers, Radio } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { HypothesisResult } from '../types';
 
@@ -14,6 +14,7 @@ interface HypothesisPanelProps {
 const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, result, isLoading }) => {
   const [evidence, setEvidence] = useState('');
   const [displayedSynthesis, setDisplayedSynthesis] = useState('');
+  const [activeStage, setActiveStage] = useState<keyof HypothesisResult['reasoning']['quantumStages'] | 'none'>('none');
   const synthesisIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
       <div className="p-4 bg-blue-900/20 border-b border-blue-500/20 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-2 text-blue-400">
           <BrainCircuit size={20} className="animate-pulse" />
-          <h3 className="font-bold tracking-wide text-sm">LORE-UR FUSION ENGINE</h3>
+          <h3 className="font-bold tracking-wide text-sm">URM HYBRID FUSION ENGINE</h3>
         </div>
         <div className="flex items-center gap-3">
           {result && (
@@ -66,15 +67,15 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
       <div className="p-4 overflow-y-auto custom-scrollbar space-y-4">
         {!result && !isLoading && (
           <div className="text-gray-400 text-sm mb-4">
-            <p className="mb-2">Execute multi-intent reasoning audited by the <strong>Laws of Reasoning (LORE)</strong> and <strong>Universal Reasoning (UR)</strong> architecture.</p>
+            <p className="mb-2">Execute multi-intent reasoning audited by the <strong>Universal Reasoning Model (URM) Hybrid</strong> architecture.</p>
             <div className="grid grid-cols-2 gap-2 mt-4">
                 <div className="bg-blue-500/5 p-2 rounded border border-blue-500/10">
-                    <span className="block text-[10px] font-bold text-blue-400 uppercase mb-1">Universal (UR)</span>
-                    <span className="text-[9px] text-gray-500">First Principles & Cross-Domain Synergy</span>
+                    <span className="block text-[10px] font-bold text-blue-400 uppercase mb-1">Local Graph</span>
+                    <span className="text-[9px] text-gray-500">Ontological Grounding & Paths</span>
                 </div>
                 <div className="bg-amber-500/5 p-2 rounded border border-amber-500/10">
-                    <span className="block text-[10px] font-bold text-amber-400 uppercase mb-1">Laws (LORE)</span>
-                    <span className="text-[9px] text-gray-500">Compositionality & Monotonicity Audits</span>
+                    <span className="block text-[10px] font-bold text-amber-400 uppercase mb-1">Global Search</span>
+                    <span className="text-[9px] text-gray-500">Real-time Literature & Facts</span>
                 </div>
             </div>
           </div>
@@ -103,7 +104,7 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
         {isLoading && (
             <div className="flex flex-col items-center justify-center py-12 space-y-4">
                 <Workflow size={32} className="text-blue-500 animate-spin" />
-                <div className="text-xs text-blue-400 font-mono tracking-widest animate-pulse uppercase">Synthesizing Laws & Principles...</div>
+                <div className="text-xs text-blue-400 font-mono tracking-widest animate-pulse uppercase">Bridging URM Hybrid Logic...</div>
             </div>
         )}
 
@@ -111,49 +112,59 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
         {result && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 
-                {/* Architecture Bridge: The Unified Artifact */}
-                <div className="bg-slate-900/80 border border-indigo-500/30 rounded-xl p-4 shadow-xl overflow-hidden relative">
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full"></div>
+                {/* URM Hybrid Reasoning Stages */}
+                <div className="grid grid-cols-5 gap-1 mb-2">
+                    {Object.keys(result.reasoning.quantumStages).map((stage) => (
+                        <button
+                            key={stage}
+                            onClick={() => setActiveStage(stage as any)}
+                            className={`p-2 rounded-lg border transition-all flex flex-col items-center gap-1 ${activeStage === stage ? 'bg-indigo-600 border-indigo-400 text-white' : 'bg-white/5 border-white/10 text-gray-500 hover:border-white/20'}`}
+                            title={stage.charAt(0).toUpperCase() + stage.slice(1)}
+                        >
+                            <Radio size={12} className={activeStage === stage ? 'animate-pulse' : ''} />
+                            <span className="text-[8px] font-bold uppercase">{stage.slice(0, 4)}</span>
+                        </button>
+                    ))}
+                </div>
+
+                {activeStage !== 'none' && (
+                    <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-lg p-3 animate-in slide-in-from-top-2 duration-300">
+                        <span className="block text-[9px] font-bold text-indigo-400 uppercase mb-1">{activeStage} Process</span>
+                        <p className="text-[10px] text-gray-300 leading-tight italic">
+                            {result.reasoning.quantumStages[activeStage as keyof typeof result.reasoning.quantumStages]}
+                        </p>
+                    </div>
+                )}
+
+                {/* Architecture Bridge */}
+                <div className="bg-slate-900/80 border border-indigo-500/30 rounded-xl p-4 shadow-xl relative overflow-hidden">
                     <h4 className="flex items-center gap-2 text-[10px] font-bold text-indigo-300 uppercase mb-3 tracking-[0.2em]">
-                         <Cpu size={14} className="text-indigo-400" /> Architecture Blueprint
+                         <Layers size={14} className="text-indigo-400" /> Hybrid Logic Bridge
                     </h4>
-                    <div className="grid grid-cols-1 gap-3 relative">
-                        <div className="bg-white/5 p-3 rounded-lg border-l-2 border-indigo-500">
-                            <span className="block text-[9px] text-gray-500 uppercase font-bold mb-1">Logic-to-Law Mapping</span>
-                            <p className="text-[11px] text-indigo-100 leading-relaxed italic">
-                                "{result.architectureBridge.coreSynthesis}"
-                            </p>
-                        </div>
-                        <div className="flex gap-2">
-                             <div className="flex-1 bg-white/5 p-2 rounded-lg border border-white/5">
-                                <span className="block text-[8px] text-gray-500 uppercase font-bold">Critical Law</span>
-                                <span className="text-[10px] text-amber-300">{result.architectureBridge.lawAlignment}</span>
-                             </div>
-                             <div className="flex-1 bg-white/5 p-2 rounded-lg border border-white/5">
-                                <span className="block text-[8px] text-gray-500 uppercase font-bold">Scaling Impact</span>
-                                <span className="text-[10px] text-cyan-300">{result.architectureBridge.universalImpact}</span>
-                             </div>
-                        </div>
+                    <div className="grid grid-cols-1 gap-2">
+                        <p className="text-[11px] text-indigo-100 leading-relaxed bg-white/5 p-2 rounded-lg border border-white/5 italic">
+                            "{result.architectureBridge.urmHybridLogic}"
+                        </p>
                     </div>
                 </div>
 
-                {/* Main Synthesis */}
+                {/* Synthesis */}
                 <div className="bg-gradient-to-br from-slate-900/80 to-blue-950/20 rounded-xl p-5 border border-white/10 shadow-lg">
                     <h4 className="flex items-center gap-2 text-xs font-bold text-white uppercase mb-3 tracking-widest border-b border-white/5 pb-2">
-                        <Activity size={14} className="text-blue-400" /> Evidence Synthesis
+                        <Activity size={14} className="text-blue-400" /> Hybrid Synthesis
                     </h4>
                     <div className="prose prose-invert prose-sm max-w-none text-xs text-gray-200 leading-relaxed font-light prose-strong:text-blue-300">
                         <ReactMarkdown>{displayedSynthesis}</ReactMarkdown>
                     </div>
                 </div>
 
-                {/* Metrics / Law Audit Block */}
+                {/* Metrics */}
                 <div className="grid grid-cols-2 gap-2">
                     <div className="bg-black/40 p-3 rounded-xl border border-white/5">
                         <div className="flex items-center gap-1 text-[9px] font-bold text-gray-500 uppercase mb-1">
-                            <Binary size={10} className="text-cyan-500" /> Circuit Depth
+                            <Binary size={10} className="text-cyan-500" /> LORE Audit
                         </div>
-                        <div className="text-sm font-mono text-cyan-200">{result.lore.complexity.quantumCircuitDepth} Gates</div>
+                        <div className="text-[10px] font-mono text-cyan-200">{result.lore.laws.compositionalityScore.toFixed(2)} Comp. Score</div>
                     </div>
                     <div className="bg-black/40 p-3 rounded-xl border border-white/5">
                         <div className="flex items-center gap-1 text-[9px] font-bold text-gray-500 uppercase mb-1">
@@ -163,11 +174,25 @@ const HypothesisPanel: React.FC<HypothesisPanelProps> = ({ onAnalyze, onClose, r
                     </div>
                 </div>
 
+                {/* Sources */}
+                {result.sources && result.sources.length > 0 && (
+                  <div className="bg-black/20 p-3 rounded-xl border border-white/5">
+                    <span className="block text-[9px] font-bold text-gray-500 uppercase mb-2">Grounding Signals</span>
+                    <div className="flex flex-wrap gap-2">
+                      {result.sources.map((s, idx) => (
+                        <a key={idx} href={s.uri} target="_blank" rel="noreferrer" className="text-[9px] bg-blue-500/10 text-blue-400 px-2 py-1 rounded hover:bg-blue-500/20 transition-all border border-blue-500/20">
+                          {s.title.slice(0, 20)}...
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <button 
                     onClick={() => { setEvidence(''); onAnalyze(''); }}
                     className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2"
                 >
-                   <ArrowRight size={14} /> Reset Inference Cycle
+                   <ArrowRight size={14} /> New Hybrid Inference
                 </button>
             </div>
         )}
